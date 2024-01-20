@@ -1,0 +1,198 @@
+<html><head><title>sb1: compare results</title><style>table {border-collapse: collapse; width: 100%;} th, td {border: 1px solid black; padding: 8px; text-align: left;}th {background-color: #4CAF50; color: white;}tr:nth-child(even){background-color: #f2f2f2;}tr:hover {background-color: #ddd;}div.nav {position: fixed; left: 0; top: 0; width: 250px; height: 100%; overflow: auto; background-color: #333; padding: 20px; color: white;}div.nav a {color: white; text-decoration: none; display: block; margin-bottom: 10px;}div.nav a:hover {background-color: #ddd; color: black;}.red {color: red; font-weight: bold;}.blue {color: blue;}.black {color: black;}.green {color: green;}.boldGreen {color: green; font-weight: bold;}td.sample_sql_text { width: 500px; word-wrap: break-word; overflow-wrap: break-word;}</style></head><body><div class="nav"><p><a href="#outfile_prefix">sb1: compare results</a></p><p><a href="#table1">before: < 500us - 1 rows</a></p><p><a href="#table2">before: 500us ~ 1ms - 0 rows</a></p><p><a href="#table3">before: 1ms ~ 10ms - 6 rows</a></p><p><a href="#table4">before: 10ms ~ 100ms - 4 rows</a></p><p><a href="#table5">before: 100ms ~ 1s - 0 rows</a></p><p><a href="#table6">before: 1s ~ 10s - 0 rows</a></p><p><a href="#table7">before: >10s - 0 rows</a></p></div><div style="margin-left: 270px; padding: 20px;"><h2 id="outfile_prefix" style="color: #333; font-weight: bold;">sb1: compare results</h2><h2 id="table1">before: < 500us - 1 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>e6f07d43b5c21db0fbb9a31feac2dc599787763393dd5acbfad80e247eb02ad5</td>
+      <td>begin</td>
+      <td>99715</td>
+      <td>1.51</td>
+      <td>0.02</td>
+      <td><span class="red">8429.0%</span></td>
+      <td>BEGIN;</td>
+    </tr>
+  </tbody>
+</table><h2 id="table2">before: 500us ~ 1ms - 0 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table><h2 id="table3">before: 1ms ~ 10ms - 6 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>48c905ec24def6bc893e3844433990654c4666044adc01db1e00e7ae97bd9470</td>
+      <td>select</td>
+      <td>997150</td>
+      <td>11.47</td>
+      <td>2.84</td>
+      <td><span class="red">303.0%</span></td>
+      <td>SELECT c FROM sbtest1 WHERE id=100000;</td>
+    </tr>
+    <tr>
+      <td>9505cacb7c710ed17125fcc6cb3669e8ddca6c8cd8af6a31f6b3cd64604c3098</td>
+      <td>commit</td>
+      <td>99715</td>
+      <td>20.25</td>
+      <td>8.27</td>
+      <td><span class="red">145.0%</span></td>
+      <td>COMMIT;</td>
+    </tr>
+    <tr>
+      <td>96d00c0b3f08795fe94e2d712fa1078ab7809faf4e81d198f276c0dede818cf9</td>
+      <td>select</td>
+      <td>99715</td>
+      <td>12.10</td>
+      <td>5.95</td>
+      <td><span class="red">103.0%</span></td>
+      <td>SELECT DISTINCT c FROM sbtest1 WHERE id BETWEEN 100001 AND 100100 ORDER BY c;</td>
+    </tr>
+    <tr>
+      <td>b5b38322b7be560edb04f33f15b15a885e7c6209a22b56b0804622e397199b54</td>
+      <td>select</td>
+      <td>99715</td>
+      <td>12.06</td>
+      <td>5.93</td>
+      <td><span class="red">103.0%</span></td>
+      <td>SELECT c FROM sbtest1 WHERE id BETWEEN 1000 AND 1099 ORDER BY c;</td>
+    </tr>
+    <tr>
+      <td>086e3fbd2732f7671c17f299d4320689deeeb87ba031240e1e598a0ca14f808c</td>
+      <td>select</td>
+      <td>99715</td>
+      <td>11.96</td>
+      <td>5.94</td>
+      <td><span class="red">101.0%</span></td>
+      <td>SELECT SUM(k) FROM sbtest1 WHERE id BETWEEN 100007 AND 100106;</td>
+    </tr>
+    <tr>
+      <td>4fcb3f253be08fe9eb3c8e45c2ea4400ef315cf44093a5b2f0fbef2092953398</td>
+      <td>select</td>
+      <td>99715</td>
+      <td>12.02</td>
+      <td>6.20</td>
+      <td><span class="blue">94.0%</span></td>
+      <td>SELECT c FROM sbtest1 WHERE id BETWEEN 10000 AND 10099;</td>
+    </tr>
+  </tbody>
+</table><h2 id="table4">before: 10ms ~ 100ms - 4 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>42a7715e0a6e6cfd39e73c58099cfec4b6cbaed87e95f9097020f2d68c545997</td>
+      <td>update</td>
+      <td>99715</td>
+      <td>1.41</td>
+      <td>24.25</td>
+      <td><span class="green">-94.0%</span></td>
+      <td>UPDATE sbtest1 SET c='00001504468-22405058820-79290494842-74756985855-05995694050-17555075115-69005515150-12257570597-37519995314-57159890525' WHERE id=432990;</td>
+    </tr>
+    <tr>
+      <td>ba41386a7e4bc73a26c69c620960e42acda22e0f7bc3f3c6fb9eb71ec7b9583f</td>
+      <td>insert</td>
+      <td>99715</td>
+      <td>0.52</td>
+      <td>10.32</td>
+      <td><span class="green">-95.0%</span></td>
+      <td>INSERT INTO sbtest1 (id, k, c, pad) VALUES (1000, 205633, '57185416587-22499044678-34925307396-15480398718-20523283076-39843314802-67947098553-44434622337-15448753046-94988414317', '16778122181-43678506839-02065423023-35996385746-10783461916');</td>
+    </tr>
+    <tr>
+      <td>f1e5d1c49d831a6b5dc92a66c3edd6ca822daf6180d3a02aac30924d43f5c2e5</td>
+      <td>delete</td>
+      <td>99715</td>
+      <td>1.24</td>
+      <td>27.40</td>
+      <td><span class="green">-95.0%</span></td>
+      <td>DELETE FROM sbtest1 WHERE id=100003;</td>
+    </tr>
+    <tr>
+      <td>311403878ef6a7d6d1e1fc3c287b2e5c9f269c2fe946a2b0220b59698815e3ee</td>
+      <td>update</td>
+      <td>99715</td>
+      <td>1.74</td>
+      <td>57.31</td>
+      <td><span class="green">-97.0%</span></td>
+      <td>UPDATE sbtest1 SET k=k+1 WHERE id=100014;</td>
+    </tr>
+  </tbody>
+</table><h2 id="table5">before: 100ms ~ 1s - 0 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table><h2 id="table6">before: 1s ~ 10s - 0 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table><h2 id="table7">before: >10s - 0 rows</h2><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sql_digest</th>
+      <th>sql_type</th>
+      <th>exec_cnts</th>
+      <th>current_ms</th>
+      <th>before_ms</th>
+      <th>reduce_pct</th>
+      <th>sample_sql_text</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table></div></body></html>
