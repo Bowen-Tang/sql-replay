@@ -18,7 +18,7 @@
 
 ```
 mkdir out
-./replay/replay_tool "username:password@tcp(ip:port)/db_name" ./slow.format out/sb1
+./replay_tool "username:password@tcp(ip:port)/db_name" ./slow.format out/sb1
 ```
 说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1 仅为标识本次回放的名称（无明确含义）
 
@@ -39,7 +39,7 @@ CREATE TABLE `test`.`replay_info` (
 ```
 **导入数据**
 ```
-./load/load_tool -db "username:password@tcp(ip:port)/test" -dir out -prefix sb1 -table replay_info
+./load_tool -db "username:password@tcp(ip:port)/test" -dir out -prefix sb1 -table replay_info
 
 ```
 说明：-dir 读取回放结果存储目录 out，-prefix 为步骤 2 中的 sb1，table 为 结果表
@@ -47,7 +47,7 @@ CREATE TABLE `test`.`replay_info` (
 ## 4. 生成报告
 
 ```
-python3 ./report/gen_report.py --user xx --password xx --host xxxx --database test --port xx --outfile_prefix sb1 --tablename replay_info
+python3 ./gen_report.py --user xx --password xx --host xxxx --database test --port xx --outfile_prefix sb1 --tablename replay_info
 ```
 说明：执行完成会输出 sb1.html，下载到本地查看
 
