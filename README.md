@@ -6,6 +6,9 @@
 4. gen_report.py 用于分析回放结果，并生成报告
 
 # 操作示例
+## 下载并解压
+```mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/master/tools.zip
+unzip tools.zip && chmod +x *tool```
 
 ## 1. 解析慢查询日志
 
