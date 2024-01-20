@@ -57,8 +57,9 @@ python3 ./gen_report.py --user xx --password xx --host xxxx --database test --po
 说明：执行完成会输出 sb1.html，下载到本地查看
 
 # 报告示例 
-<iframe src="report/sb1.html" width="100%" height="300px"></iframe>
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/112bb36f-bdd7-4ccd-a70f-ace6e1d2063e)
 
+report/sb1.html
 
 
 
