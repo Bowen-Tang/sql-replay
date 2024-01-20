@@ -17,15 +17,13 @@
 
 # 编译安装方法：
 1. 安装 golang 1.20 及以上
-2. Python 3 环境：
-   mysql-connector-python (8.0.29)
-   pandas (1.1.5)
+2. Python 3 环境： mysql-connector-python (8.0.29)、pandas (1.1.5)
 
 3. 下载项目
 git clone https://github.com/Bowen-Tang/sql-replay
 
 4. 编译 parse_tool
-    cd sql_replay/parse
+`cd sql_replay/parse`
     go mod init parse_tool
     go mod tidy
     go build
