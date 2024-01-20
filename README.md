@@ -25,18 +25,18 @@
 git clone https://github.com/Bowen-Tang/sql-replay
 
 4. 编译 parse_tool
-   cd sql_replay/parse
-   go mod init parse_tool
-   go mod tidy
-   go build
+    cd sql_replay/parse
+    go mod init parse_tool
+    go mod tidy
+    go build
 
-5. 编译 replay_tool
+6. 编译 replay_tool
    cd ../replay
    go mod init replay_tool
    go mod tidy
    go build
 
-6. 编译 load_tool
+7. 编译 load_tool
    cd ../load
    go mod init load_tool
    go mod tidy
