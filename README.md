@@ -15,7 +15,7 @@ unzip tools.zip && chmod +x *tool
 ## 1. 解析慢查询日志
 
 ```
-./parse/parse_tool /opt/slow.log slow.format
+./parse_tool /opt/slow.log slow.format
 ```
 说明：/opt/slow.log 为慢查询日志路径，slow.format 则为输出的格式化文件
 
