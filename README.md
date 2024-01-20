@@ -56,6 +56,9 @@ python3 ./gen_report.py --user xx --password xx --host xxxx --database test --po
 ```
 说明：执行完成会输出 sb1.html，下载到本地查看
 
+# 报告示例 
+<iframe src="report/sb1.html" width="100%" height="300px"></iframe>
+
 
 
 # 编译安装方法
