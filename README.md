@@ -47,8 +47,9 @@ CREATE TABLE `test`.`replay_info` (
 ## 4. 生成报告
 
 ```
-python3 gen_report.py --user xx --password xx --host xxxx --database test --port xx --outfile_prefix sb1 --tablename replay_info
+python3 ./report/gen_report.py --user xx --password xx --host xxxx --database test --port xx --outfile_prefix sb1 --tablename replay_info
 ```
+说明：执行完成会输出 sb1.html，下载到本地查看
 
 
 
