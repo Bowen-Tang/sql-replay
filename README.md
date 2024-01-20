@@ -61,6 +61,7 @@ python3 ./gen_report.py --user xx --password xx --host xxxx --database test --po
 
 
 
+
 # 编译安装方法
 
 1. 安装 golang 1.20 及以上
