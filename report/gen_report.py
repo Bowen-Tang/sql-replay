@@ -155,7 +155,11 @@ GROUP BY
 HAVING
     AVG(query_time) > 10000000
 ORDER BY
-    avg(execution_time)/avg(query_time) desc'''
+    avg(execution_time)/avg(query_time) desc''',
+'''-- 8: return rows diff
+select sql_digest,count(*) exec_cnts,avg(rows_sent) before_rows,avg(rows_returned) current_rows,min(sql_text) as sample_sql_text from replay_info where file_name like concat(%s,'%') group by sql_digest having avg(rows_sent)<>avg(rows_returned)''',
+'''-- 9: error info
+select sql_digest,error_info,count(*) exec_cnts,min(sql_text) as sample_sql_text from replay_info where error_info <>'' and file_name like concat(%s,'%') group by sql_digest,error_info order by sql_digest,error_info,count(*) desc'''
 ]
 
 
@@ -218,7 +222,6 @@ def generate_html():
     record_counts = []
     query_results = []
 
-    # 定义每个表格的标题
     table_titles = [
         "before: < 500us",
         "before: 500us ~ 1ms",
@@ -226,7 +229,9 @@ def generate_html():
         "before: 10ms ~ 100ms",
         "before: 100ms ~ 1s",
         "before: 1s ~ 10s",
-        "before: >10s"
+        "before: >10s",
+        "return rows diff",
+        "error info"
     ]
 
     for i, sql in enumerate(sql_queries):
@@ -236,28 +241,23 @@ def generate_html():
 
     for i, df in enumerate(query_results):
         html_content += f'<p><a href="#table{i+1}">{table_titles[i]} - {record_counts[i]} rows</a></p>'
-
     html_content += '</div>'
 
-    # 主内容
     html_content += '<div style="margin-left: 270px; padding: 20px;">'
-    # 添加 outfile_prefix 锚点
-    html_content += f'<h2 id="outfile_prefix" style="color: #333; font-weight: bold;">{outfile_prefix}: compare results</h2>'
+    html_content += f'<h2 id="outfile_prefix">{outfile_prefix}: compare results</h2>'
 
     for i, df in enumerate(query_results):
-        df['reduce_pct'] = df['reduce_pct'].apply(style_reduce_pct)  # 应用样式函数
+        if 'reduce_pct' in df.columns:
+            df['reduce_pct'] = df['reduce_pct'].apply(style_reduce_pct)
         html_content += f'<h2 id="table{i+1}">{table_titles[i]} - {record_counts[i]} rows</h2>'
-        html_content += df.to_html(index=False, escape=False)  # 使用 escape=False 来渲染 HTML
+        html_content += df.to_html(index=False, escape=False)
     html_content += '</div>'
-
-    # 结束 HTML 内容
     html_content += '</body></html>'
     return html_content
 
-report_file = outfile_prefix + '.html'
 def save_html_report():
     html_report = generate_html()
-    with open(report_file, 'w') as file:
+    with open(outfile_prefix + '.html', 'w') as file:
         file.write(html_report)
 
 save_html_report()
