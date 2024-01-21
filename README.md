@@ -57,7 +57,9 @@ python3 ./gen_report.py --user xx --password xx --host xxxx --database test --po
 说明：执行完成会输出 sb1.html，下载到本地查看
 
 # 报告示例 
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/112bb36f-bdd7-4ccd-a70f-ace6e1d2063e)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/cd480ac6-cee3-4b3d-996a-9f66a71a3a87)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/725e8ceb-df10-4004-bc05-54ec8a86abe8)
+
 
 report/sb1.html
 
