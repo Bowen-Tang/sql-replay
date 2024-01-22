@@ -101,3 +101,8 @@ git clone https://github.com/Bowen-Tang/sql-replay
    go mod tidy
    go build
 ```
+
+# 改进计划
+1. parse 部分增加 user 过滤以及 sql type 过滤功能
+2. replay 时可设置最大执行时间
+3. 报告生成使用 go
