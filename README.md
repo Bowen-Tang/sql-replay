@@ -75,9 +75,8 @@ python3 ./gen_report.py --user username --password password --host ip --port por
 说明：执行完成会输出 sb1_all.html，下载到本地查看
 
 # 报告示例 
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/cd480ac6-cee3-4b3d-996a-9f66a71a3a87)
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/725e8ceb-df10-4004-bc05-54ec8a86abe8)
-
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6259a65d-90d5-420e-8f54-8c35ccfe0b69)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/9ddb8433-e83e-48d4-8dd6-65f434d1f5ef)
 
 # 编译安装方法
 
@@ -97,8 +96,3 @@ git clone https://github.com/Bowen-Tang/sql-replay
     go mod tidy
     go build
 ```
-
-# 改进计划
-1. parse 部分增加 user 过滤以及 sql type 过滤功能
-2. replay 时可设置最大执行时间
-3. 报告生成使用 go
