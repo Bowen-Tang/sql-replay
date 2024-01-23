@@ -23,7 +23,7 @@ type LogEntry struct {
 
 func main() {
     if len(os.Args) < 3 {
-        fmt.Println("Usage: go run parse_log.go <path_to_slow_query_log> <path_to_output_file>")
+        fmt.Println("Usage: ./parse_tool <path_to_slow_query_log> <path_to_output_file>")
         return
     }
 

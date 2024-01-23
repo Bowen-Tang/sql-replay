@@ -115,7 +115,7 @@ func main() {
     flag.Parse()
 
     if dbConnStr == "" || dir == "" || filePrefix == "" || tableName == "" {
-        fmt.Println("Usage: program -db <DB_CONN_STRING> -dir <DIRECTORY> -prefix <FILE_PREFIX> -table <TABLE_NAME>")
+        fmt.Println("Usage: ./load_tool -db <DB_CONN_STRING> -dir <DIRECTORY> -prefix <FILE_PREFIX> -table <TABLE_NAME>")
         return
     }
 
