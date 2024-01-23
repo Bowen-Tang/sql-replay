@@ -15,7 +15,7 @@ unzip tools.zip && chmod +x *tool
 ## 1. 解析慢查询日志
 
 ```
-./parse_tool -slowlog /opt/slow.log -output slow.format
+./parse_tool -slow_in /opt/slow.log -slow_out slow.format
 ```
 说明：/opt/slow.log 为慢查询日志路径，slow.format 则为输出的格式化文件
 
@@ -23,7 +23,7 @@ unzip tools.zip && chmod +x *tool
 
 ```
 mkdir out
-./replay_tool -db "user:password@tcp(ip:port)/db_name" -input ./slow.format -output ./out/sb1  -username all -sqltype all
+./replay_tool -db "user:password@tcp(ip:port)/db_name" -slow_out ./slow.format -replay_out ./out/sb1  -username all -sqltype all
 ```
 说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1 仅为标识本次回放的名称（无明确含义）;可指定源端用户回放；sqltype 支持设置为 select 以及 all
 
@@ -45,10 +45,10 @@ CREATE TABLE `test`.`replay_info` (
 ```
 **导入数据**
 ```
-./load_tool -db "username:password@tcp(ip:port)/test" -dir out -prefix sb1 -table replay_info
+./load_tool -db "username:password@tcp(ip:port)/test" -out_dir out -replay_name sb1 -table test.replay_info
 
 ```
-说明：-dir 读取回放结果存储目录 out，-prefix 为步骤 2 中的 sb1，table 为 结果表
+说明：-out_dir 读取回放结果存储目录 out，-replay_name 为步骤 2 中的 sb1，table 为 结果表
 
 ## 4. 生成报告
 
