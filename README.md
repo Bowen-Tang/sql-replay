@@ -15,7 +15,7 @@ unzip tools.zip && chmod +x *tool
 ## 1. 解析慢查询日志
 
 ```
-./parse_tool /opt/slow.log slow.format
+./parse_tool -slowlog /opt/slow.log -output slow.format
 ```
 说明：/opt/slow.log 为慢查询日志路径，slow.format 则为输出的格式化文件
 
@@ -23,9 +23,10 @@ unzip tools.zip && chmod +x *tool
 
 ```
 mkdir out
-./replay_tool "username:password@tcp(ip:port)/db_name" ./slow.format out/sb1
+./replay_tool -db "user:password@tcp(ip:port)/db_name" -input ./slow.format -output ./out/sb1  -username all -sqltype all
 ```
-说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1 仅为标识本次回放的名称（无明确含义）
+说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1 仅为标识本次回放的名称（无明确含义）;可指定源端用户回放；sqltype 支持设置为 select 以及 all
+
 
 ## 3. 导入回放结果到数据库
 **连接目标库，创建表结构**
