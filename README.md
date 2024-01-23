@@ -56,9 +56,6 @@ CREATE TABLE `test`.`replay_info` (
 ./sql-replay -mode load -db "user:password@tcp(ip:port)/db" -out-dir ./out -replay-name sb1_all -table replay_info 
 # 导入回放任务 sb1_select 的回放数据 
 ./sql-replay -mode load -db "user:password@tcp(ip:port)/db" -out-dir ./out -replay-name sb1_select -table replay_info 
-
-./load_tool -db "username:password@tcp(ip:port)/test" -out_dir out -replay_name sb1 -table test.replay_info
-
 ```
 说明：-out-dir 为回放结果存储目录，-replay-name 回放任务名称，table 为写入结果表
 
