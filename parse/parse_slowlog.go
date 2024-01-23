@@ -25,15 +25,15 @@ type LogEntry struct {
 func main() {
     var (
         slowLogPath string
-        outputPath string
+        slow_outputPath string
     )
 
-    flag.StringVar(&slowLogPath, "slowlog", "", "Path to slow query log file")
-    flag.StringVar(&outputPath, "output", "", "Path to output JSON file")
+    flag.StringVar(&slowLogPath, "slow_in", "", "Path to slow query log file")
+    flag.StringVar(&slow_outputPath, "slow_out", "", "Path to slow output JSON file")
     flag.Parse()
 
-    if slowLogPath == "" || outputPath == "" {
-        fmt.Println("Usage: ./parse_tool -slowlog <path_to_slow_query_log> -output <path_to_output_file>")
+    if slowLogPath == "" || slow_outputPath == "" {
+        fmt.Println("Usage: ./parse_tool -slow_in <path_to_slow_query_log> -slow_out <path_to_slow_output_file>")
         return
     }
 
@@ -44,7 +44,7 @@ func main() {
     }
     defer file.Close()
 
-    outputFile, err := os.Create(outputPath)
+    outputFile, err := os.Create(slow_outputPath)
     if err != nil {
         fmt.Println("Error creating output file:", err)
         return

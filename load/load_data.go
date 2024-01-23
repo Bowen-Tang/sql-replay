@@ -23,8 +23,8 @@ type SQLExecutionRecord struct {
 }
 
 
-func processFiles(dir, prefix, tableName string, db *sql.DB) error {
-    filePaths, err := filepath.Glob(filepath.Join(dir, prefix+"*"))
+func processFiles(out_dir, replay_name, tableName string, db *sql.DB) error {
+    filePaths, err := filepath.Glob(filepath.Join(out_dir, replay_name+"*"))
     if err != nil {
         return err
     }
@@ -103,19 +103,19 @@ func insertBatch(lines []string, fileName, tableName string, db *sql.DB) error {
 func main() {
     var (
         dbConnStr  string
-        dir        string
-        filePrefix string
+        out_dir        string
+        replay_out string
         tableName  string
     )
 
     flag.StringVar(&dbConnStr, "db", "", "Database connection string")
-    flag.StringVar(&dir, "dir", "", "Directory containing the JSON files")
-    flag.StringVar(&filePrefix, "prefix", "", "Prefix of the JSON files")
+    flag.StringVar(&out_dir, "out_dir", "", "Directory containing the JSON files")
+    flag.StringVar(&replay_out, "replay_name", "", "replayout filename of the JSON files")
     flag.StringVar(&tableName, "table", "", "Name of the table to insert data into")
     flag.Parse()
 
-    if dbConnStr == "" || dir == "" || filePrefix == "" || tableName == "" {
-        fmt.Println("Usage: ./load_tool -db <DB_CONN_STRING> -dir <DIRECTORY> -prefix <FILE_PREFIX> -table <TABLE_NAME>")
+    if dbConnStr == "" || out_dir == "" || replay_out == "" || tableName == "" {
+        fmt.Println("Usage: ./load_tool -db <DB_CONN_STRING> -out_dir <DIRECTORY> -replay_name <REPORT_OUT_FILE_NAME> -table <TABLE_NAME>")
         return
     }
 
@@ -126,7 +126,7 @@ func main() {
     }
     defer db.Close()
 
-    err = processFiles(dir, filePrefix, tableName, db)
+    err = processFiles(out_dir, replay_out, tableName, db)
     if err != nil {
         fmt.Println("Error processing files:", err)
     }
