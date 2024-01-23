@@ -3,7 +3,7 @@ package main
 import (
     "database/sql"
     "encoding/json"
-    "flag"
+//    "flag"
     "fmt"
     "io/ioutil"
     _ "github.com/go-sql-driver/mysql"
@@ -12,7 +12,7 @@ import (
     "strings"
 )
 
-type SQLExecutionRecord struct {
+type SQLExecutionRecord3 struct {
     SQL           string `json:"sql"`
     QueryTime     int64  `json:"query_time"`
     RowsSent      int    `json:"rows_sent"`
@@ -72,7 +72,7 @@ func insertBatch(lines []string, fileName, tableName string, db *sql.DB) error {
         if line == "" {
             continue
         }
-        var record SQLExecutionRecord
+        var record SQLExecutionRecord3
         err := json.Unmarshal([]byte(line), &record)
         if err != nil {
             return err
@@ -100,22 +100,9 @@ func insertBatch(lines []string, fileName, tableName string, db *sql.DB) error {
     return err
 }
 
-func main() {
-    var (
-        dbConnStr  string
-        out_dir        string
-        replay_out string
-        tableName  string
-    )
-
-    flag.StringVar(&dbConnStr, "db", "", "Database connection string")
-    flag.StringVar(&out_dir, "out_dir", "", "Directory containing the JSON files")
-    flag.StringVar(&replay_out, "replay_name", "", "replayout filename of the JSON files")
-    flag.StringVar(&tableName, "table", "", "Name of the table to insert data into")
-    flag.Parse()
-
-    if dbConnStr == "" || out_dir == "" || replay_out == "" || tableName == "" {
-        fmt.Println("Usage: ./load_tool -db <DB_CONN_STRING> -out_dir <DIRECTORY> -replay_name <REPORT_OUT_FILE_NAME> -table <TABLE_NAME>")
+func LoadData(dbConnStr, outDir, replayOut, tableName string)  {
+    if dbConnStr == "" || outDir == "" || replayOut == "" || tableName == "" {
+        fmt.Println("Usage: ./sql-replay -mode load -db <DB_CONN_STRING> -out-dir <DIRECTORY> -replay-name <REPORT_OUT_FILE_NAME> -table <replay_info>")
         return
     }
 
@@ -126,7 +113,7 @@ func main() {
     }
     defer db.Close()
 
-    err = processFiles(out_dir, replay_out, tableName, db)
+    err = processFiles(outDir, replayOut, tableName, db)
     if err != nil {
         fmt.Println("Error processing files:", err)
     }

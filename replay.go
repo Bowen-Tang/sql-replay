@@ -8,11 +8,11 @@ import (
     "os"
     "sync"
     "time"
-    "flag"
+//    "flag"
     _ "github.com/go-sql-driver/mysql"
 )
 
-type SQLExecutionRecord struct {
+type SQLExecutionRecord2 struct {
     SQL           string `json:"sql"`
     QueryTime     int64  `json:"query_time"`
     RowsSent      int    `json:"rows_sent"`
@@ -21,7 +21,7 @@ type SQLExecutionRecord struct {
     ErrorInfo     string `json:"error_info,omitempty"`
 }
 
-type LogEntry struct {
+type LogEntry2 struct {
     ConnectionID string `json:"connection_id"`
     QueryTime    int64  `json:"query_time"`
     SQL          string `json:"sql"`
@@ -32,11 +32,11 @@ type LogEntry struct {
 
 // SQLTask 代表 SQL 执行任务
 type SQLTask struct {
-    Entry LogEntry
+    Entry LogEntry2
     DB    *sql.DB
 }
 
-func ExecuteSQLAndRecord(task SQLTask, basereplay_outputFilePath string) error {
+func ExecuteSQLAndRecord(task SQLTask, basereplayOutputFilePath string) error {
     if task.DB == nil {
         return fmt.Errorf("database connection is nil")
     }
@@ -57,7 +57,7 @@ func ExecuteSQLAndRecord(task SQLTask, basereplay_outputFilePath string) error {
 
     executionTime := time.Since(startTime).Microseconds()
 
-    record := SQLExecutionRecord{
+    record := SQLExecutionRecord2{
         SQL:           task.Entry.SQL,
         QueryTime:     task.Entry.QueryTime,
         RowsSent:      task.Entry.RowsSent,
@@ -71,8 +71,8 @@ func ExecuteSQLAndRecord(task SQLTask, basereplay_outputFilePath string) error {
         return err
     }
 
-    replay_outputFilePath := fmt.Sprintf("%s.%s", basereplay_outputFilePath, task.Entry.ConnectionID)
-    file, err := os.OpenFile(replay_outputFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+    replayOutputFilePath := fmt.Sprintf("%s.%s", basereplayOutputFilePath, task.Entry.ConnectionID)
+    file, err := os.OpenFile(replayOutputFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
     if err != nil {
         return err
     }
@@ -86,21 +86,15 @@ func ExecuteSQLAndRecord(task SQLTask, basereplay_outputFilePath string) error {
     return err
 }
 
-func main() {
-    mysqlConnStr := flag.String("db", "", "MySQL connection string")
-    slow_outputPath := flag.String("slow_out", "", "Path to slow out json file")
-    replay_outputFilePath := flag.String("replay_out", "", "Path to output json file")
-    filterUsername := flag.String("username", "all", "Username to filter (default 'all')")
-    filterSQLType := flag.String("sqltype", "all", "SQL type to filter (default 'all')")
+func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType string) {
 
-    flag.Parse()
 
-    if *mysqlConnStr == "" || *slow_outputPath == "" || *replay_outputFilePath == "" {
-        fmt.Println("Usage: ./replay_tool -db <mysql_connection_string> -slow_out <slow_output_file> -replay_out <replay_output_file> -username <username> -sqltype <sql_type>")
+    if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
+        fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select>")
         return
     }
 
-    inputFile, err := os.Open(*slow_outputPath)
+    inputFile, err := os.Open(slowOutputPath)
     if err != nil {
         fmt.Println("Error opening file:", err)
         return
@@ -109,20 +103,20 @@ func main() {
 
     var wg sync.WaitGroup
     scanner := bufio.NewScanner(inputFile)
-    tasksMap := make(map[string][]LogEntry)
+    tasksMap := make(map[string][]LogEntry2)
 
     for scanner.Scan() {
-        var entry LogEntry
+        var entry LogEntry2
         if err := json.Unmarshal([]byte(scanner.Text()), &entry); err != nil {
             fmt.Println("Error parsing log entry:", err)
             continue
         }
 
-        if *filterUsername != "all" && entry.Username != *filterUsername {
+        if filterUsername != "all" && entry.Username != filterUsername {
             continue
         }
 
-        if *filterSQLType != "all" && entry.SQLType != *filterSQLType {
+        if filterSQLType != "all" && entry.SQLType != filterSQLType {
             continue
         }
 
@@ -132,10 +126,10 @@ func main() {
     // 为每个 ConnectionID 创建 goroutine
     for connID, entries := range tasksMap {
         wg.Add(1)
-        go func(connID string, entries []LogEntry) {
+        go func(connID string, entries []LogEntry2) {
             defer wg.Done()
 
-            db, err := sql.Open("mysql", *mysqlConnStr)
+            db, err := sql.Open("mysql", dbConnStr)
             if err != nil {
                 fmt.Println("Error opening database for", connID, ":", err)
                 return
@@ -149,7 +143,7 @@ func main() {
 
             for _, entry := range entries {
                 task := SQLTask{Entry: entry, DB: db}
-                if err := ExecuteSQLAndRecord(task, *replay_outputFilePath); err != nil {
+                if err := ExecuteSQLAndRecord(task, replayOutputFilePath); err != nil {
                     fmt.Println("Error executing SQL for", connID, ":", err)
                 }
             }

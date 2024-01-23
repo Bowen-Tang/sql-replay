@@ -6,14 +6,14 @@ import (
     "fmt"
     "github.com/pingcap/tidb/pkg/parser"
     "os"
-    "flag"
+//    "flag"
     "regexp"
     "strconv"
     "strings"
 )
 
-// LogEntry 代表慢查询日志中的一条记录
-type LogEntry struct {
+// LogEntry1 代表慢查询日志中的一条记录
+type LogEntry1 struct {
     ConnectionID string `json:"connection_id"`
     QueryTime    int64  `json:"query_time"`
     SQL          string `json:"sql"`
@@ -22,18 +22,9 @@ type LogEntry struct {
     SQLType      string `json:"sql_type"`  // 新增字段 sql_type
 }
 
-func main() {
-    var (
-        slowLogPath string
-        slow_outputPath string
-    )
-
-    flag.StringVar(&slowLogPath, "slow_in", "", "Path to slow query log file")
-    flag.StringVar(&slow_outputPath, "slow_out", "", "Path to slow output JSON file")
-    flag.Parse()
-
-    if slowLogPath == "" || slow_outputPath == "" {
-        fmt.Println("Usage: ./parse_tool -slow_in <path_to_slow_query_log> -slow_out <path_to_slow_output_file>")
+func ParseLogs(slowLogPath, slowOutputPath string) {
+    if slowLogPath == "" || slowOutputPath == "" {
+        fmt.Println("Usage: ./sql-replay -mode parse -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
         return
     }
 
@@ -44,7 +35,7 @@ func main() {
     }
     defer file.Close()
 
-    outputFile, err := os.Create(slow_outputPath)
+    outputFile, err := os.Create(slowOutputPath)
     if err != nil {
         fmt.Println("Error creating output file:", err)
         return
@@ -52,7 +43,7 @@ func main() {
     defer outputFile.Close()
 
     scanner := bufio.NewScanner(file)
-    var currentEntry LogEntry
+    var currentEntry LogEntry1
     var sqlBuffer strings.Builder
 
     reUser := regexp.MustCompile(`User@Host: (\w+)\[`) // 正则表达式用于提取 username
@@ -75,7 +66,7 @@ func main() {
                 sqlBuffer.Reset()
             }
 
-            currentEntry = LogEntry{}
+            currentEntry = LogEntry1{}
             match := reUser.FindStringSubmatch(line)
             if len(match) > 1 {
                 currentEntry.Username = match[1] // 设置 username
