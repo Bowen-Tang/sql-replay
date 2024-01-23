@@ -78,7 +78,7 @@ git clone https://github.com/Bowen-Tang/sql-replay
 4. 编译 parse_tool
 
 ```
-    cd sql_replay/parse
+    cd sql-replay/parse
     go mod init parse_tool
     go mod tidy
     go build
