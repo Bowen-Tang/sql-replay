@@ -8,6 +8,7 @@ import (
     "os"
     "sync"
     "time"
+    "flag"
     _ "github.com/go-sql-driver/mysql"
 )
 
@@ -25,6 +26,8 @@ type LogEntry struct {
     QueryTime    int64  `json:"query_time"`
     SQL          string `json:"sql"`
     RowsSent     int    `json:"rows_sent"`
+    Username     string `json:"username"`  // 新增字段 username
+    SQLType      string `json:"sql_type"`  // 新增字段 sql_type
 }
 
 // SQLTask 代表 SQL 执行任务
@@ -84,18 +87,20 @@ func ExecuteSQLAndRecord(task SQLTask, baseOutputFilePath string) error {
 }
 
 func main() {
-    // 参数处理
-    if len(os.Args) < 4 {
-        fmt.Println("Usage: go run . <mysql_connection_string> <input_file> <output_file>")
+    mysqlConnStr := flag.String("db", "", "MySQL connection string")
+    inputFilePath := flag.String("input", "", "Path to input file")
+    outputFilePath := flag.String("output", "", "Path to output file")
+    filterUsername := flag.String("username", "all", "Username to filter (default 'all')")
+    filterSQLType := flag.String("sqltype", "all", "SQL type to filter (default 'all')")
+
+    flag.Parse()
+
+    if *mysqlConnStr == "" || *inputFilePath == "" || *outputFilePath == "" {
+        fmt.Println("Usage: go run . -db <mysql_connection_string> -input <input_file> -output <output_file> -username <username> -sqltype <sql_type>")
         return
     }
 
-    mysqlConnStr := os.Args[1]
-    inputFilePath := os.Args[2]
-    outputFilePath := os.Args[3]
-
-    // 解析文件
-    inputFile, err := os.Open(inputFilePath)
+    inputFile, err := os.Open(*inputFilePath)
     if err != nil {
         fmt.Println("Error opening file:", err)
         return
@@ -106,13 +111,21 @@ func main() {
     scanner := bufio.NewScanner(inputFile)
     tasksMap := make(map[string][]LogEntry)
 
-    // 读取日志条目并按 ConnectionID 分组
     for scanner.Scan() {
         var entry LogEntry
         if err := json.Unmarshal([]byte(scanner.Text()), &entry); err != nil {
             fmt.Println("Error parsing log entry:", err)
             continue
         }
+
+        if *filterUsername != "all" && entry.Username != *filterUsername {
+            continue
+        }
+
+        if *filterSQLType != "all" && entry.SQLType != *filterSQLType {
+            continue
+        }
+
         tasksMap[entry.ConnectionID] = append(tasksMap[entry.ConnectionID], entry)
     }
 
@@ -122,7 +135,7 @@ func main() {
         go func(connID string, entries []LogEntry) {
             defer wg.Done()
 
-            db, err := sql.Open("mysql", mysqlConnStr)
+            db, err := sql.Open("mysql", *mysqlConnStr)
             if err != nil {
                 fmt.Println("Error opening database for", connID, ":", err)
                 return
@@ -136,7 +149,7 @@ func main() {
 
             for _, entry := range entries {
                 task := SQLTask{Entry: entry, DB: db}
-                if err := ExecuteSQLAndRecord(task, outputFilePath); err != nil {
+                if err := ExecuteSQLAndRecord(task, *outputFilePath); err != nil {
                     fmt.Println("Error executing SQL for", connID, ":", err)
                 }
             }
