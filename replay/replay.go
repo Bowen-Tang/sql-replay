@@ -96,7 +96,7 @@ func main() {
     flag.Parse()
 
     if *mysqlConnStr == "" || *inputFilePath == "" || *outputFilePath == "" {
-        fmt.Println("Usage: go run . -db <mysql_connection_string> -input <input_file> -output <output_file> -username <username> -sqltype <sql_type>")
+        fmt.Println("Usage: ./replay_tool -db <mysql_connection_string> -input <input_file> -output <output_file> -username <username> -sqltype <sql_type>")
         return
     }
 
