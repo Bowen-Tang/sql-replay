@@ -6,6 +6,7 @@ import (
     "fmt"
     "github.com/pingcap/tidb/pkg/parser"
     "os"
+    "flag"
     "regexp"
     "strconv"
     "strings"
@@ -22,13 +23,19 @@ type LogEntry struct {
 }
 
 func main() {
-    if len(os.Args) < 3 {
-        fmt.Println("Usage: ./parse_tool <path_to_slow_query_log> <path_to_output_file>")
+    var (
+        slowLogPath string
+        outputPath string
+    )
+
+    flag.StringVar(&slowLogPath, "slowlog", "", "Path to slow query log file")
+    flag.StringVar(&outputPath, "output", "", "Path to output JSON file")
+    flag.Parse()
+
+    if slowLogPath == "" || outputPath == "" {
+        fmt.Println("Usage: ./parse_tool -slowlog <path_to_slow_query_log> -output <path_to_output_file>")
         return
     }
-
-    slowLogPath := os.Args[1]
-    outputPath := os.Args[2]
 
     file, err := os.Open(slowLogPath)
     if err != nil {
