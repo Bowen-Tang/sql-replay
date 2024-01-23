@@ -69,7 +69,8 @@ CREATE TABLE `test`.`replay_info` (
 yum install -y python3
 pip3 install pandas
 pip3 install mysql-connector-python
-python3 ./gen_report.py --user xx --password xx --host xxxx --database test --port xx --outfile_prefix sb1 --tablename replay_info
+# 生成 sb1_all 回放任务的报告
+python3 ./gen_report.py --user username --password password --host ip --port port --database test --replay sb1_all
 ```
 说明：执行完成会输出 sb1_all.html，下载到本地查看
 
@@ -88,31 +89,13 @@ python3 ./gen_report.py --user xx --password xx --host xxxx --database test --po
 git clone https://github.com/Bowen-Tang/sql-replay
 ```
 
-4. 编译 parse_tool
+4. 编译 sql-replay
 
 ```
-    cd sql-replay/parse
-    go mod init parse_tool
+    cd sql-replay
+    go mod init sql-replay
     go mod tidy
     go build
-```
-
-6. 编译 replay_tool
-
-```
-   cd ../replay
-   go mod init replay_tool
-   go mod tidy
-   go build
-```
-
-7. 编译 load_tool
-
-```
-   cd ../load
-   go mod init load_tool
-   go mod tidy
-   go build
 ```
 
 # 改进计划
