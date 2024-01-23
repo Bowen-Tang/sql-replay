@@ -36,7 +36,7 @@ type SQLTask struct {
     DB    *sql.DB
 }
 
-func ExecuteSQLAndRecord(task SQLTask, baseOutputFilePath string) error {
+func ExecuteSQLAndRecord(task SQLTask, basereplay_outputFilePath string) error {
     if task.DB == nil {
         return fmt.Errorf("database connection is nil")
     }
@@ -71,8 +71,8 @@ func ExecuteSQLAndRecord(task SQLTask, baseOutputFilePath string) error {
         return err
     }
 
-    outputFilePath := fmt.Sprintf("%s.%s", baseOutputFilePath, task.Entry.ConnectionID)
-    file, err := os.OpenFile(outputFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+    replay_outputFilePath := fmt.Sprintf("%s.%s", basereplay_outputFilePath, task.Entry.ConnectionID)
+    file, err := os.OpenFile(replay_outputFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
     if err != nil {
         return err
     }
@@ -88,19 +88,19 @@ func ExecuteSQLAndRecord(task SQLTask, baseOutputFilePath string) error {
 
 func main() {
     mysqlConnStr := flag.String("db", "", "MySQL connection string")
-    inputFilePath := flag.String("input", "", "Path to input file")
-    outputFilePath := flag.String("output", "", "Path to output file")
+    slow_outputPath := flag.String("slow_out", "", "Path to slow out json file")
+    replay_outputFilePath := flag.String("replay_out", "", "Path to output json file")
     filterUsername := flag.String("username", "all", "Username to filter (default 'all')")
     filterSQLType := flag.String("sqltype", "all", "SQL type to filter (default 'all')")
 
     flag.Parse()
 
-    if *mysqlConnStr == "" || *inputFilePath == "" || *outputFilePath == "" {
-        fmt.Println("Usage: ./replay_tool -db <mysql_connection_string> -input <input_file> -output <output_file> -username <username> -sqltype <sql_type>")
+    if *mysqlConnStr == "" || *slow_outputPath == "" || *replay_outputFilePath == "" {
+        fmt.Println("Usage: ./replay_tool -db <mysql_connection_string> -slow_out <slow_output_file> -replay_out <replay_output_file> -username <username> -sqltype <sql_type>")
         return
     }
 
-    inputFile, err := os.Open(*inputFilePath)
+    inputFile, err := os.Open(*slow_outputPath)
     if err != nil {
         fmt.Println("Error opening file:", err)
         return
@@ -149,7 +149,7 @@ func main() {
 
             for _, entry := range entries {
                 task := SQLTask{Entry: entry, DB: db}
-                if err := ExecuteSQLAndRecord(task, *outputFilePath); err != nil {
+                if err := ExecuteSQLAndRecord(task, *replay_outputFilePath); err != nil {
                     fmt.Println("Error executing SQL for", connID, ":", err)
                 }
             }
