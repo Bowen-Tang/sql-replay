@@ -52,6 +52,9 @@ func main() {
     defer outputFile.Close()
 
     scanner := bufio.NewScanner(file)
+    buf := make([]byte, 0, 512*1024*1024) // 512MB的缓冲区
+    scanner.Buffer(buf, bufio.MaxScanTokenSize)
+
     var currentEntry LogEntry
     var sqlBuffer strings.Builder
 
