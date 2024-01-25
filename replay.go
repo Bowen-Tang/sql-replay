@@ -103,6 +103,9 @@ func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, 
 
     var wg sync.WaitGroup
     scanner := bufio.NewScanner(inputFile)
+    buf := make([]byte, 0, 512*1024*1024) // 512MB的缓冲区
+    scanner.Buffer(buf, bufio.MaxScanTokenSize)
+
     tasksMap := make(map[string][]LogEntry2)
 
     for scanner.Scan() {
