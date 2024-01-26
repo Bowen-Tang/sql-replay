@@ -2,7 +2,7 @@
 ## parse 部分
 读取 MySQL 慢查询日志，去掉 MySQL 中自动生成的 set timestamp=xx/# Administor/-- 等无效 SQL，生成一个可以格式化的 json 文件，用于回放
 ## replay 部分
-1. 读取格式化后的 json 文件，支持指定上游指定用户、上游 SQL 类型（all、select）来进行回放
+1. 读取格式化后的 json 文件，支持指定上游指定用户、上游 SQL 类型（all、select）、指定数据库（仅支持抓包工具采集的日志）来进行回放
 2. 回放前将日志根据 connection id 并行，相同 connection id 的 SQL 串行
 3. 将回放结果输出成 json 文件（按照 connection id 区分）
 ## load 部分
@@ -29,9 +29,9 @@ unzip v0.2.zip
 ```
 mkdir out # 用户存储回放结果
 # 回放所有用户、所有 SQL
-./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all
+./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all -dbname all
 # 回放所有用户、select 语句
-./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select
+./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select -dbname db1
 ```
 说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1_all/sb1_select 为回放任务名称
 
