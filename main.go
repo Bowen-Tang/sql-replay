@@ -14,7 +14,7 @@ func main() {
     var slowLogPath, slowOutputPath, dbConnStr, replayOutputFilePath, filterUsername, filterSQLType, outDir, replayOut, tableName string
     flag.StringVar(&slowLogPath, "slow-in", "", "Path to slow query log file")
     flag.StringVar(&slowOutputPath, "slow-out", "", "Path to slow output JSON file")
-    flag.StringVar(&dbConnStr, "db", "", "Database connection string")
+    flag.StringVar(&dbConnStr, "db", "username:password@tcp(localhost:3306)/test", "Database connection string")
     flag.StringVar(&outDir, "out-dir", "", "Directory containing the JSON files")
     flag.StringVar(&replayOut, "replay-name", "", "replayout filename of the JSON files")
     flag.StringVar(&tableName, "table", "", "Name of the table to insert data into")
