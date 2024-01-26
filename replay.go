@@ -28,6 +28,7 @@ type LogEntry2 struct {
     RowsSent     int    `json:"rows_sent"`
     Username     string `json:"username"`  // 新增字段 username
     SQLType      string `json:"sql_type"`  // 新增字段 sql_type
+    DBName       string `json:"dbname"`    // 新增字段 dbname
 }
 
 // SQLTask 代表 SQL 执行任务
@@ -86,11 +87,11 @@ func ExecuteSQLAndRecord(task SQLTask, basereplayOutputFilePath string) error {
     return err
 }
 
-func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType string) {
+func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName string) {
 
 
     if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
-        fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select>")
+        fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname>")
         return
     }
 
@@ -120,6 +121,10 @@ func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, 
         }
 
         if filterSQLType != "all" && entry.SQLType != filterSQLType {
+            continue
+        }
+// 新增 dbname
+        if filterDBName != "all" && entry.DBName != filterDBName {
             continue
         }
 
