@@ -88,12 +88,15 @@ func ExecuteSQLAndRecord(task SQLTask, basereplayOutputFilePath string) error {
 }
 
 func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName string) {
-
-
     if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
         fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname>")
         return
     }
+
+    fmt.Println("回放目标用户：", filterUsername," 回放目标数据库：",filterDBName," 回放 SQL 范围: ",filterSQLType)
+
+    ts0 := time.Now() // 程序开始时记录时间
+    fmt.Println("参数读取成功，开始解析数据:", ts0)
 
     inputFile, err := os.Open(slowOutputPath)
     if err != nil {
@@ -131,6 +134,11 @@ func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, 
         tasksMap[entry.ConnectionID] = append(tasksMap[entry.ConnectionID], entry)
     }
 
+    ts1 := time.Now() // map 构建完成时间
+    fmt.Println("完成数据解析: ", ts1)
+    fmt.Printf("数据解析耗时: %v\n", ts1.Sub(ts0)) // 打印 ts1-ts0 时间
+    fmt.Println("开始 SQL 回放")
+
     // 为每个 ConnectionID 创建 goroutine
     for connID, entries := range tasksMap {
         wg.Add(1)
@@ -159,4 +167,7 @@ func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, 
     }
 
     wg.Wait()
+    ts2 := time.Now() // 回放完成时间
+    fmt.Println("SQL 回放完成:", ts2)
+    fmt.Printf("SQL 回放时间: %v\n", ts2.Sub(ts1)) // 打印 ts2-ts1 时间
 }
