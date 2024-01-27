@@ -93,8 +93,9 @@ git clone https://github.com/Bowen-Tang/sql-replay
 ```
 # 回放建议
 1. 当数据库中就一个 database，一个 user 时，使用 -username all -dbname all 来回放
-2. 当数据库中有多个 database、多个 user 时，建议启动多个 sql-replay 进程并行回放，每个进程对应不同的 -username 和 -dbname（注意 -db 中的用户名、数据库名也需保持一致）
+2. 当数据库中有多个 database、多个 user 时，建议启动多个 sql-replay 进程并行回放（否则将出现大量 SQL 报错），每个进程对应不同的 -username 和 -dbname（注意 -db 中的用户名、数据库名也需保持一致）
 
 # 已知问题
 1. 通过慢查询回放时，由于日志中没有记录 database 信息，所以在 replay 时，只能指定 -db all，或者不指定，否则不会进行回放（如果想要在慢查询回放时过滤库，可以通过指定 -username 以及 -db 中的用户名和数据库名的形式来完成对应库的回放）
 2. insert into ... (),(),(),() 数十万行的 SQL 回放时，有可能会导致程序崩溃
+3. 抓包回放的 SQL 中，如果是预编译 ? 占位符类型时，回放时这部分 SQL 会执行报错
