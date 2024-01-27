@@ -1,4 +1,6 @@
 # 功能介绍
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/b68059a6-ee85-46d3-894d-a3df70c78a8f)
+
 ## parse 部分
 读取 MySQL 慢查询日志，去掉 MySQL 中自动生成的 set timestamp=xx/# Administor/-- 等无效 SQL，生成一个可以格式化的 json 文件，用于回放
 ## replay 部分
