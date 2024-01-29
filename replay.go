@@ -117,6 +117,7 @@ func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFileP
     scanner.Buffer(buf, bufio.MaxScanTokenSize)
 
     tasksMap := make(map[string][]LogEntry2)
+    var minTs float64 = 9999999999.999999  // 增加最小时间戳
 
     for scanner.Scan() {
         var entry LogEntry2
@@ -136,10 +137,14 @@ func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFileP
         if filterDBName != "all" && entry.DBName != filterDBName {
             continue
         }
-
         tasksMap[entry.ConnectionID] = append(tasksMap[entry.ConnectionID], entry)
-    }
 
+// 获取最小时间戳
+        if entry.Ts < minTs {
+            minTs = entry.Ts
+        }
+    }
+//    fmt.Printf("最小ts: %f\n", minTs)
     ts1 := time.Now() // map 构建完成时间
     fmt.Println("完成数据解析: ", ts1)
     fmt.Printf("数据解析耗时: %v\n", ts1.Sub(ts0)) // 打印 ts1-ts0 时间
@@ -158,21 +163,21 @@ func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFileP
             }
             defer db.Close()
 
-        var prevTs float64 = 0 // 初始化前一个时间戳为 0
-
-            if err := db.Ping(); err != nil {
-                fmt.Println("Database connection failed for", connID, ":", err)
-                return
-            }
+            // 初始化 prevTs
+            var prevTs float64 = entries[0].Ts - (entries[0].Ts - minTs)
+//            fmt.Printf("第一个 ts: %f\n", prevTs)
 
             for _, entry := range entries {
-                // 如果不是第一条记录，计算时间间隔并等待
-                if prevTs != 0 {
-                    interval := entry.Ts - prevTs // 计算时间间隔
-                    sleepDuration := time.Duration(interval * float64(time.Second) / Speed)
+                // 计算时间间隔并等待
+                interval := (entry.Ts - prevTs) / Speed
+//                fmt.Printf("间隔: %f\n", interval)
+                if interval > 0 {
+                    sleepDuration := time.Duration(interval * float64(time.Second))
                     time.Sleep(sleepDuration)
                 }
                 prevTs = entry.Ts // 更新前一个时间戳
+
+                // 执行 SQL
                 task := SQLTask{Entry: entry, DB: db}
                 if err := ExecuteSQLAndRecord(task, replayOutputFilePath); err != nil {
                     fmt.Println("Error executing SQL for", connID, ":", err)
