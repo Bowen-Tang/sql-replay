@@ -35,11 +35,11 @@ unzip v0.2.zip
 ```
 mkdir out # 用户存储回放结果
 # 回放所有用户、所有 SQL
-./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all -dbname all
+./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all -dbname all
 # 回放所有用户、select 语句
-./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select -dbname db1
+./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select -dbname db1
 ```
-说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1_all/sb1_select 为回放任务名称
+说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1_all/sb1_select 为回放任务名称;speed 为回放速度，当慢查询周期很长但语句很少时建议增大回放速度，当需要模拟更大压力时，建议增大回放速度
 
 ## 3. 导入回放结果到数据库
 **连接目标库，创建表结构**
