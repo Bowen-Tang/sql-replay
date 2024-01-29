@@ -6,6 +6,7 @@ import (
     "fmt"
     "github.com/pingcap/tidb/pkg/parser"
     "os"
+    "time"
 //    "flag"
     "regexp"
     "strconv"
@@ -20,6 +21,7 @@ type LogEntry1 struct {
     RowsSent     int    `json:"rows_sent"`
     Username     string `json:"username"`  // 新增字段 username
     SQLType      string `json:"sql_type"`  // 新增字段 sql_type
+    Ts           float64 `json:"ts"`  // 新增字段，时间戳
 }
 
 func ParseLogs(slowLogPath, slowOutputPath string) {
@@ -49,11 +51,22 @@ func ParseLogs(slowLogPath, slowOutputPath string) {
     var currentEntry LogEntry1
     var sqlBuffer strings.Builder
 
+    reTime := regexp.MustCompile(`Time: ([\d-T:.Z]+)`) // 正则表达式用于提取时间
     reUser := regexp.MustCompile(`User@Host: (\w+)\[`) // 正则表达式用于提取 username
     reConnectionID := regexp.MustCompile(`Id:\s*(\d+)`) // 用于提取 ConnectionID
 
     for scanner.Scan() {
         line := scanner.Text()
+
+        if strings.HasPrefix(line, "# Time:") {
+            matchTime := reTime.FindStringSubmatch(line)
+            if len(matchTime) > 1 {
+                t, err := time.Parse(time.RFC3339Nano, matchTime[1])
+                if err == nil {
+                    currentEntry.Ts = float64(t.UnixNano()) / 1e9 // 转换为秒，保留6位小数
+                }
+            }
+        }
 
         if strings.HasPrefix(line, "# User@Host:") {
             if sqlBuffer.Len() > 0 {
