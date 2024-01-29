@@ -8,8 +8,8 @@
 ## parse 部分
 读取 MySQL 慢查询日志，去掉 MySQL 中自动生成的 set timestamp=xx/# Administor/-- 等无效 SQL，生成一个可以格式化的 json 文件，用于回放
 ## replay 部分
-1. 读取格式化后的 json 文件，支持指定上游指定用户、上游 SQL 类型（all、select）、指定数据库（仅支持抓包工具采集的日志）来进行回放
-2. 回放前将日志根据 connection id 并行，相同 connection id 的 SQL 串行
+1. 读取 sql-replay -mode parse/parse-tshark -mode parse2file 生成的格式化 json 文件，支持指定上游数据库用户、上游 SQL 类型（all、select）、指定数据库（仅支持抓包工具采集的日志）来进行回放
+2. 根据 connection id 并行，相同 connection id 的 SQL 串行
 3. 将回放结果输出成 json 文件（按照 connection id 区分）
 ## load 部分
 1. 解析 replay 生成的 json 文件，使用 TiDB Parse 模块对 SQL 进行格式化，并生成指纹（sql digest）
