@@ -29,6 +29,7 @@ type LogEntry2 struct {
     Username     string `json:"username"`  // 新增字段 username
     SQLType      string `json:"sql_type"`  // 新增字段 sql_type
     DBName       string `json:"dbname"`    // 新增字段 dbname
+    Ts           float64 `json:"ts"` // 新增字段，以秒为单位，包含6位精度
 }
 
 // SQLTask 代表 SQL 执行任务
@@ -87,13 +88,18 @@ func ExecuteSQLAndRecord(task SQLTask, basereplayOutputFilePath string) error {
     return err
 }
 
-func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName string) {
+func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName string) {
     if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
-        fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname>")
+        fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname>")
+        return
+    }
+    // 检查 Speed 参数是否为正数
+    if Speed <= 0 {
+        fmt.Println("Invalid replay speed. The speed must be a positive number.")
         return
     }
 
-    fmt.Println("回放目标用户：", filterUsername," 回放目标数据库：",filterDBName," 回放 SQL 范围: ",filterSQLType)
+    fmt.Println("回放目标用户：", filterUsername," 回放目标数据库：",filterDBName," 回放 SQL 范围: ",filterSQLType," 回放速度: ",Speed)
 
     ts0 := time.Now() // 程序开始时记录时间
     fmt.Println("参数读取成功，开始解析数据:", ts0)
@@ -152,12 +158,21 @@ func ReplaySQL(dbConnStr, slowOutputPath, replayOutputFilePath, filterUsername, 
             }
             defer db.Close()
 
+        var prevTs float64 = 0 // 初始化前一个时间戳为 0
+
             if err := db.Ping(); err != nil {
                 fmt.Println("Database connection failed for", connID, ":", err)
                 return
             }
 
             for _, entry := range entries {
+                // 如果不是第一条记录，计算时间间隔并等待
+                if prevTs != 0 {
+                    interval := entry.Ts - prevTs // 计算时间间隔
+                    sleepDuration := time.Duration(interval * float64(time.Second) / Speed)
+                    time.Sleep(sleepDuration)
+                }
+                prevTs = entry.Ts // 更新前一个时间戳
                 task := SQLTask{Entry: entry, DB: db}
                 if err := ExecuteSQLAndRecord(task, replayOutputFilePath); err != nil {
                     fmt.Println("Error executing SQL for", connID, ":", err)
