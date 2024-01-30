@@ -80,6 +80,20 @@ python3 ./gen_report.py --user username --password password --host ip --port por
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6259a65d-90d5-420e-8f54-8c35ccfe0b69)
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/9ddb8433-e83e-48d4-8dd6-65f434d1f5ef)
 
+# 倍速回放效果（1 倍（默认），10 倍，50 倍）
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/8ebbee92-586d-4090-97d6-9e2c87c640bc)
+
+# 回放基本按照原始顺序回放
+回放文件内容
+
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/e87e84fd-7318-41d0-8356-ddce5c744e2d)
+
+数据库记录的 SQL 执行顺序
+
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/7d9d7f84-80a1-44d6-b3d5-8f27b933ffcb)
+
+
+
 # 编译安装方法
 
 1. 安装 golang 1.20 及以上
