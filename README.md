@@ -119,3 +119,4 @@ git clone https://github.com/Bowen-Tang/sql-replay
 1. 通过慢查询回放时，由于日志中没有记录 database 信息，所以在 replay 时，只能指定 -db all，或者不指定，否则不会进行回放（如果想要在慢查询回放时过滤库，可以通过指定 -username 以及 -db 中的用户名和数据库名的形式来完成对应库的回放）
 2. insert into ... (),(),(),() 数十万行的 SQL 回放时，有可能会导致程序崩溃
 3. 抓包回放的 SQL 中，如果是预编译 ? 占位符类型时，回放时这部分 SQL 会执行报错
+4. SQL 回放顺序并不完全与真实执行顺序相等
