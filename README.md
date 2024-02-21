@@ -14,14 +14,14 @@
 ## load 部分
 1. 解析 replay 生成的 json 文件，使用 TiDB Parse 模块对 SQL 进行格式化，并生成指纹（sql digest）
 2. 将解析出来的信息写入数据库的 replay_info 表中
-## gen_report.py
-对回放结果进行分析，生成回放报告（含响应时间对比、返回行数不一致、错误信息）
+## report 部分
+对回放结果进行分析，生成回放报告（含响应时间对比、错误信息）
 
 # 操作示例 
 ## 下载并解压 
 ```
-mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.2/v0.2.zip
-unzip v0.2.zip
+mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3/v0.3.zip
+unzip v0.3.zip
 ```
  
 ## 1. 解析慢查询日志
@@ -68,13 +68,9 @@ CREATE TABLE `test`.`replay_info` (
 ## 4. 生成报告
 
 ```
-yum install -y python3
-pip3 install pandas
-pip3 install mysql-connector-python
-# 生成 sb1_all 回放任务的报告
-python3 ./gen_report.py --user username --password password --host ip --port port --database test --replay sb1_all
+./sql-replay -mode report -db <mysql_connection_string> -replay-name slow1 -port ':8081'
 ```
-说明：执行完成会输出 sb1_all.html，下载到本地查看
+说明：执行完可访问 IP:PORT 访问报告内容
 
 # 报告示例 
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6259a65d-90d5-420e-8f54-8c35ccfe0b69)
@@ -97,8 +93,7 @@ python3 ./gen_report.py --user username --password password --host ip --port por
 # 编译安装方法
 
 1. 安装 golang 1.20 及以上
-2. Python 3 环境： mysql-connector-python (8.0.29+)、pandas (1.1.5)
-3. 下载项目
+2. 下载项目
 
 ```
 git clone https://github.com/Bowen-Tang/sql-replay
