@@ -1,5 +1,6 @@
 # 功能介绍
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/b68059a6-ee85-46d3-894d-a3df70c78a8f)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/bc2bd3cc-8cdf-4f06-8187-9937a84b56c3)
+
 
 ## 适用场景
 1. 版本升级兼容性及性能评估
@@ -73,8 +74,10 @@ CREATE TABLE `test`.`replay_info` (
 说明：执行完可访问 IP:PORT 访问报告内容
 
 # 报告示例 
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6259a65d-90d5-420e-8f54-8c35ccfe0b69)
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/9ddb8433-e83e-48d4-8dd6-65f434d1f5ef)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/64eb12ca-2317-4891-b21b-583630ecbeae)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/b39a08dc-4c72-4ba6-9762-e7b217fdcf96)
+
+
 
 # 倍速回放效果（1 倍（默认），10 倍，50 倍）
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/8ebbee92-586d-4090-97d6-9e2c87c640bc)
