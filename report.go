@@ -239,6 +239,9 @@ func Report(dbConnStr, replayOut, Port string) {
             display: none;
             z-index: 9999;
             max-width: 1000px;
+            width: 500px; /* 固定预览框的宽度为 500px */
+            min-width: 500px; /* 设置最小宽度 */
+            font-size: 15px; /* 设置预览框中文本的字体大小为 15px */
         }
     </style>
 </head>
