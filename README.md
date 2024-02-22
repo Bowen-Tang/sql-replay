@@ -118,3 +118,4 @@ git clone https://github.com/Bowen-Tang/sql-replay
 2. insert into ... (),(),(),() 数十万行的 SQL 回放时，有可能会导致程序崩溃
 3. 抓包回放的 SQL 中，如果是预编译 ? 占位符类型时，回放时这部分 SQL 会执行报错
 4. SQL 回放顺序并不完全与真实执行顺序相等
+5. MySQL 慢查询日志中记录的执行时间可能比真实时间慢（如 select sleep(10)，并不会记录为 10 秒，如 MySQL 5.7 中并不包含等锁时间等）
