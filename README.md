@@ -1,5 +1,6 @@
 # 功能介绍
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/bc2bd3cc-8cdf-4f06-8187-9937a84b56c3)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/edd09399-7c05-44fa-9055-7d27c8bbc949)
+
 
 
 ## 适用场景
