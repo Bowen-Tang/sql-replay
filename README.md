@@ -75,6 +75,8 @@ CREATE TABLE `test`.`replay_info` (
 
 # 报告示例 
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/be918a5c-b06e-4899-81db-dfdac3007232)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/5a9433d9-0b0d-4192-aaf5-2e14f2caaa80)
+
 说明：为方便展示，将文本内容使用 ... 进行了省略，但依旧可以通过双击单元格选择内容后复制完整内容；另外 sample_sql_text 支持预览
 
 
