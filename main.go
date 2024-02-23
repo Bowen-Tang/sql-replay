@@ -18,7 +18,7 @@ func main() {
     flag.StringVar(&dbConnStr, "db", "username:password@tcp(localhost:3306)/test", "Database connection string")
     flag.StringVar(&outDir, "out-dir", "", "Directory containing the JSON files")
     flag.StringVar(&replayOut, "replay-name", "", "replayout filename of the JSON files")
-    flag.StringVar(&tableName, "table", "", "Name of the table to insert data into")
+    flag.StringVar(&tableName, "table", "replay_info", "Name of the table to insert data into")
     flag.StringVar(&replayOutputFilePath, "replay-out", "", "Path to output json file")
     flag.StringVar(&filterUsername, "username", "all", "Username to filter (default 'all',or username)")
     flag.StringVar(&filterSQLType, "sqltype", "all", "SQL type to filter (default 'all',or select)")
