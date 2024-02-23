@@ -75,10 +75,12 @@ CREATE TABLE `test`.`replay_info` (
 说明：执行完可访问 IP:PORT 访问报告内容
 
 # 报告示例 
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/cd1842ce-1d71-4457-beeb-1e224b2d5557)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/672a829f-8599-476d-9d48-e6560a7a687e)
 
 
-说明：为方便展示，将文本内容使用 ... 进行了省略，但依旧可以通过双击单元格选择内容后复制完整内容；另外 sample_sql_text 支持预览
+
+说明：
+1. 为方便展示，将文本内容使用 ... 进行了省略，但依旧可以通过双击单元格选择内容后复制完整内容；另外 sample_sql_text 支持预览
 
 
 
