@@ -157,7 +157,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 10000000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "Sql Error Info": `select sql_digest,count(*) exec_cnts,substr(error_info,1,64) as error_info,min(sql_text) as sample_sql_text from replay_info where error_info <>'' and file_name like concat(?,'%') group by sql_digest,error_info order by sql_digest,error_info,count(*) desc`,
+        "Sql Error Info": `select sql_digest,count(*) exec_cnts,substr(error_info,1,256) as error_info,min(sql_text) as sample_sql_text from replay_info where error_info <>'' and file_name like concat(?,'%') group by sql_digest,error_info order by sql_digest,error_info,count(*) desc`,
     }
 
     tmpl := `
