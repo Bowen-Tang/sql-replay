@@ -35,8 +35,8 @@ func Report(dbConnStr, replayOut, Port string) {
             sum(case when query_time>execution_time and error_info='' then 1 else 0 end) faster_cnts,
             sum(case when query_time<execution_time and error_info ='' then 1 else 0 end) slower_cnts,
             sum(case when error_info<>'' then 1 else 0 end) err_cnts,
-            round(sum(case when error_info='' then ri.query_time else 0 end)/1000000/60,2) before_total_mins,
-            round(sum(case when error_info='' then ri.execution_time else 0 end)/1000000/60,2) now_total_mins
+            round(sum(case when error_info='' then ri.query_time else 0 end)/1000000/60,2) "before_sql_time(min)",
+            round(sum(case when error_info='' then ri.execution_time else 0 end)/1000000/60,2) "now_sql_time(min)"
             from replay_info ri where ri.file_name like concat(?,'%')`,
         "Sample1: <500us": `SELECT
             sql_digest,sql_type,
