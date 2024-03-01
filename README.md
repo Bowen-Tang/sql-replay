@@ -7,6 +7,39 @@
 1. 版本升级兼容性及性能评估
 2. 系统迁移兼容性及性能评估
 
+## 支持的源端数据库
+1. MySQL 5.6, 5.7, 8.0
+2. 华为云 MySQL RDS
+
+支持的日志格式示例：
+```
+# Time: 2024-01-19T16:29:48.141142Z
+# User@Host: t1[t1] @  [10.2.103.21]  Id:   797
+# Query_time: 0.000038  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 1
+SET timestamp=1705681788;
+SELECT c FROM sbtest1 WHERE id=250438;
+```
+
+```
+# Time: 240119 16:29:48
+# User@Host: t1[t1] @  [10.2.103.21]  Id:   797
+# Query_time: 0.000038  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 1
+SET timestamp=1705681788;
+SELECT c FROM sbtest1 WHERE id=250438;
+```
+
+```
+# Time: 231106  0:06:36
+# User@Host: coplo2o[coplo2o] @  [10.0.2.34]  Id: 45827727
+# Query_time: 1.066695  Lock_time: 0.000042 Rows_sent: 1  Rows_examined: 7039 Thread_id: 45827727 Schema: db Errno: 0 Killed: 0 Bytes_received: 0 Bytes_sent: 165 Read_first
+: 0 Read_last: 0 Read_key: 1 Read_next: 7039 Read_prev: 0 Read_rnd: 0 Read_rnd_next: 0 Sort_merge_passes: 0 Sort_range_count: 0 Sort_rows: 0 Sort_scan_count: 0 Created_tmp_
+disk_tables: 0 Created_tmp_tables: 0 Start: 2023-11-06T00:06:35.589701 End: 2023-11-06T00:06:36.656396 Launch_time: 0.000000
+# QC_Hit: No  Full_scan: No  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No  Filesort: No  Filesort_on_disk: No
+use db;
+SET timestamp=1699200395;
+SELECT c FROM sbtest1 WHERE id=250438;
+```
+
 ## parse 部分
 读取 MySQL 慢查询日志，去掉 MySQL 中自动生成的 set timestamp=xx/# Administor/-- 等无效 SQL，生成一个可以格式化的 json 文件，用于回放
 ## replay 部分
@@ -75,7 +108,13 @@ CREATE TABLE `test`.`replay_info` (
 说明：执行完可访问 IP:PORT 访问报告内容
 
 # 报告示例 
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/672a829f-8599-476d-9d48-e6560a7a687e)
+
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/c72dcbea-ad39-4ade-ad09-24dd163b913a)
+Replay Summary 中，记录了 SQL 总耗时对比、快的 SQL 条数、慢的 SQL 条数、错误的 SQL 条数
+
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6f027083-88ff-49a3-a6fc-f7bf952f9f6f)
+Sql Error Info 中，根据 sql_digest 以及 error_info（前 10 位）排序
+
 
 
 
