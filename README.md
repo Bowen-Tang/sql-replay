@@ -1,5 +1,6 @@
 # 功能介绍
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/bc2bd3cc-8cdf-4f06-8187-9937a84b56c3)
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/edd09399-7c05-44fa-9055-7d27c8bbc949)
+
 
 
 ## 适用场景
@@ -74,8 +75,12 @@ CREATE TABLE `test`.`replay_info` (
 说明：执行完可访问 IP:PORT 访问报告内容
 
 # 报告示例 
-![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/be918a5c-b06e-4899-81db-dfdac3007232)
-说明：为方便展示，将文本内容使用 ... 进行了省略，但依旧可以通过双击单元格选择内容后复制完整内容；另外 sample_sql_text 支持预览
+![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/672a829f-8599-476d-9d48-e6560a7a687e)
+
+
+
+说明：
+1. 为方便展示，将文本内容使用 ... 进行了省略，但依旧可以通过双击单元格选择内容后复制完整内容；另外 sample_sql_text 支持预览
 
 
 
@@ -119,3 +124,5 @@ git clone https://github.com/Bowen-Tang/sql-replay
 3. 抓包回放的 SQL 中，如果是预编译 ? 占位符类型时，回放时这部分 SQL 会执行报错
 4. SQL 回放顺序并不完全与真实执行顺序相等
 5. MySQL 慢查询日志中记录的执行时间可能比真实时间慢（如 select sleep(10)，并不会记录为 10 秒，如 MySQL 5.7 中并不包含等锁时间等）
+6. 当开启 log_slow_extra 时，解析日志会发生错误，应该关闭该功能
+7. 5.6/5.7/8.0以及云上 RDS 的慢查询日志中 #Time 的格式可能不尽相同，记录的时间戳可能存在偏差，将会影响回放速度的控制

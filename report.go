@@ -31,7 +31,14 @@ func Report(dbConnStr, replayOut, Port string) {
 
     // 定义 SQL 查询
     queries := map[string]string{
-        "1. RT <500us": `SELECT
+        "Replay Summary": `select min(SUBSTRING_INDEX(file_name,'.',1)) replay_name,count(*) sql_cnts,
+            sum(case when query_time>execution_time and error_info='' then 1 else 0 end) faster_cnts,
+            sum(case when query_time<execution_time and error_info ='' then 1 else 0 end) slower_cnts,
+            sum(case when error_info<>'' then 1 else 0 end) err_cnts,
+            round(sum(case when error_info='' then ri.query_time else 0 end)/1000000/60,2) before_total_mins,
+            round(sum(case when error_info='' then ri.execution_time else 0 end)/1000000/60,2) now_total_mins
+            from replay_info ri where ri.file_name like concat(?,'%')`,
+        "Sample1: <500us": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -48,7 +55,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) <= 500
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "2. RT 500us~1ms": `SELECT
+        "Sample2: 500us~1ms": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -65,7 +72,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 500 AND AVG(query_time) <= 1000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "3. RT 1ms~10ms": `SELECT
+        "Sample3: 1ms~10ms": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -82,7 +89,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 1000 AND AVG(query_time) <= 10000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "4. RT 10ms~100ms": `SELECT
+        "Sample4: 10ms~100ms": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -99,7 +106,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 10000 AND AVG(query_time) <= 100000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "5. RT 100ms~1s": `SELECT
+        "Sample5: 100ms~1s": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -116,7 +123,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 100000 AND AVG(query_time) <= 1000000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "6. RT 1s~10s": `SELECT
+        "Sample6: 1s~10s": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -133,7 +140,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 1000000 AND AVG(query_time) <= 10000000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "7. RT >10s": `SELECT
+        "Sample7: >10s": `SELECT
             sql_digest,sql_type,
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
@@ -150,7 +157,7 @@ func Report(dbConnStr, replayOut, Port string) {
             AVG(query_time) > 10000000
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
-        "8. ERROR INFO": `select sql_digest,count(*) exec_cnts,substr(error_info,1,64) as error_info,min(sql_text) as sample_sql_text from replay_info where error_info <>'' and file_name like concat(?,'%') group by sql_digest,error_info order by sql_digest,error_info,count(*) desc`,
+        "Sql Error Info": `select sql_digest,count(*) exec_cnts,substr(min(error_info),1,256) as error_info,min(sql_text) as sample_sql_text from replay_info where error_info <>'' and file_name like concat(?,'%') group by sql_digest,substr(error_info,1,10) order by count(*) desc`,
     }
 
     tmpl := `
@@ -178,8 +185,7 @@ func Report(dbConnStr, replayOut, Port string) {
         }
         nav a {
             text-decoration: none; /* 去掉链接的下划线 */
-            font-weight: bold; /* 设置字体加粗 */
-            color: #1e88e5; /* 设置为深蓝色 */
+            color: navy; /* 设置为深蓝色 */
         }
         nav ul {
             list-style: none;
@@ -195,8 +201,8 @@ func Report(dbConnStr, replayOut, Port string) {
             margin-left: 240px; /* 留出导航栏的空间 */
         }
         .blue-bar {
-            background-color: rgba(173, 216, 230, 0.05);
-            color: #333; /* 设置文字颜色为深灰色 */
+            background-color: white;
+            color: navy; /* 设置文字颜色为深灰色 */
             font-size: 20px; /* 设置文字大小为 32 像素 */
             font-weight: bold; /* 设置文字加粗 */
             padding: 10px; /* 设置内边距 */
@@ -204,7 +210,7 @@ func Report(dbConnStr, replayOut, Port string) {
             margin-bottom: 10px; /* 设置底部边距 */
             width: 100%; /* 设置宽度与页面一致 */
             box-sizing: border-box; /* 设置盒子模型为边框盒模型 */
-            text-align: center; /* 文字居中 */
+            text-align: left; /* 文字居中 */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 添加阴影 */
         }
         .nav-heading {
@@ -256,21 +262,23 @@ func Report(dbConnStr, replayOut, Port string) {
     </nav>
     <main>
         {{range $key, $query := .}}
-        {{ if eq $key "1. RT <500us" }}
+        {{ if eq $key "Replay Summary" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "2. RT 500us~1ms" }}
+        {{ else if eq $key "Sample1: <500us" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "3. RT 1ms~10ms" }}
+        {{ else if eq $key "Sample2: 500us~1ms" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "4. RT 10ms~100ms" }}
+        {{ else if eq $key "Sample3: 1ms~10ms" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "5. RT 100ms~1s" }}
+        {{ else if eq $key "Sample4: 10ms~100ms" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "6. RT 1s~10s" }}
+        {{ else if eq $key "Sample5: 100ms~1s" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "7. RT >10s" }}
+        {{ else if eq $key "Sample6: 1s~10s" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
-        {{ else if eq $key "8. ERROR INFO" }}
+        {{ else if eq $key "Sample7: >10s" }}
+        <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
+        {{ else if eq $key "Sql Error Info" }}
         <div class="blue-bar" id="{{ $key }}">{{ $key }}</div>
         {{ else }}
         <h1 id="{{ $key }}">{{ $key }}</h1>
