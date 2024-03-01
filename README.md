@@ -163,4 +163,4 @@ git clone https://github.com/Bowen-Tang/sql-replay
 3. 抓包回放的 SQL 中，如果是预编译 ? 占位符类型时，回放时这部分 SQL 会执行报错
 4. SQL 回放顺序并不完全与真实执行顺序相等
 5. MySQL 慢查询日志中记录的执行时间可能比真实时间慢（如 select sleep(10)，并不会记录为 10 秒，如 MySQL 5.7 中并不包含等锁时间等）
-6. 云上 RDS 的慢查询日志格式不尽相同，可能不支持
+6. 云上 RDS 的慢查询日志格式不尽相同，可能不支持；暂不支持 MariaDB，当前无法获取 connection_id，后续加上
