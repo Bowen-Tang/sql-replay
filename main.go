@@ -6,6 +6,9 @@ import (
     "os"
 )
 
+// 版本信息
+var version = "0.3.1, build date 20240301"
+
 func main() {
     var mode string
     flag.StringVar(&mode, "mode", "", "Mode of operation: parse, replay, load, report")
@@ -13,6 +16,11 @@ func main() {
     // 共用的标志
     var slowLogPath, slowOutputPath, dbConnStr, replayOutputFilePath, filterUsername, filterSQLType,filterDBName, outDir, replayOut, tableName, Port string
     var Speed float64
+
+    // 增加版本
+    var showVersion bool
+    flag.BoolVar(&showVersion, "version", false, "Show version info")
+
     flag.StringVar(&slowLogPath, "slow-in", "", "Path to slow query log file")
     flag.StringVar(&slowOutputPath, "slow-out", "", "Path to slow output JSON file")
     flag.StringVar(&dbConnStr, "db", "username:password@tcp(localhost:3306)/test", "Database connection string")
@@ -27,6 +35,11 @@ func main() {
     flag.StringVar(&Port, "port", ":8081", "Report Web port")
 
     flag.Parse()
+
+    if showVersion {
+        fmt.Println("SQL Replay Tool Version:", version)
+        os.Exit(0)
+    }
 
     if mode == "" {
         fmt.Println("Usage: ./sql-replay -mode [parse|replay|load|report]")
