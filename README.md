@@ -56,7 +56,7 @@ SELECT c FROM sbtest1 WHERE id=250438;
 ## 下载并解压 
 ```
 mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3/v0.3.zip
-unzip v0.3.zip
+unzip v0.3.1.zip
 ```
  
 ## 1. 解析慢查询日志
