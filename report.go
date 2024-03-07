@@ -39,7 +39,7 @@ func Report(dbConnStr, replayOut, Port string) {
             round(sum(case when error_info='' then ri.execution_time else 0 end)/1000000/60,2) "now_sql_time(min)"
             from replay_info ri where ri.file_name like concat(?,'%')`,
         "Sample1: <500us": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
@@ -56,7 +56,7 @@ func Report(dbConnStr, replayOut, Port string) {
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
         "Sample2: 500us~1ms": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
@@ -73,7 +73,7 @@ func Report(dbConnStr, replayOut, Port string) {
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
         "Sample3: 1ms~10ms": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
@@ -90,7 +90,7 @@ func Report(dbConnStr, replayOut, Port string) {
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
         "Sample4: 10ms~100ms": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
@@ -107,7 +107,7 @@ func Report(dbConnStr, replayOut, Port string) {
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
         "Sample5: 100ms~1s": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
@@ -124,7 +124,7 @@ func Report(dbConnStr, replayOut, Port string) {
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
         "Sample6: 1s~10s": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
@@ -141,7 +141,7 @@ func Report(dbConnStr, replayOut, Port string) {
         ORDER BY
             avg(execution_time)/avg(query_time) desc`,
         "Sample7: >10s": `SELECT
-            sql_digest,sql_type,
+            sql_digest,min(sql_type),
             COUNT(*) AS exec_cnts,
             round(AVG(execution_time / 1000),2) AS current_ms,
             round(AVG(query_time / 1000),2) AS before_ms,
