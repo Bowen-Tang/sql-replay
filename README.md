@@ -164,3 +164,4 @@ git clone https://github.com/Bowen-Tang/sql-replay
 4. SQL 回放顺序并不完全与真实执行顺序相等
 5. MySQL 慢查询日志中记录的执行时间可能比真实时间慢（如 select sleep(10)，并不会记录为 10 秒，如 MySQL 5.7 中并不包含等锁时间等）
 6. 云上 RDS 的慢查询日志格式不尽相同，可能不支持；暂不支持 MariaDB，当前无法获取 connection_id，后续加上
+7. 当 connection_id 值过多（>4096）时，进行回放时会遇到 too many open files 错误，临时解决办法：回放前 ulimit -n 1000000
