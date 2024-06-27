@@ -163,13 +163,16 @@ func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFileP
             }
             defer db.Close()
 
-            // 初始化 prevTs
+            // 初始化 prevTs 和 Last_QueryTime 0627
             var prevTs float64 = entries[0].Ts - (entries[0].Ts - minTs)
+            var lastQueryTime int64 = 0
 //            fmt.Printf("第一个 ts: %f\n", prevTs)
 
             for _, entry := range entries {
                 // 计算时间间隔并等待
-                interval := (entry.Ts - prevTs) / Speed
+                // interval := (entry.Ts - prevTs) / Speed
+                // 计算时间间隔并等待，减去上一个 QueryTime 0627
+                interval := (entry.Ts - prevTs - float64(lastQueryTime)/1e6) / Speed
 //                fmt.Printf("间隔: %f\n", interval)
                 if interval > 0 {
                     sleepDuration := time.Duration(interval * float64(time.Second))
@@ -182,6 +185,8 @@ func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFileP
                 if err := ExecuteSQLAndRecord(task, replayOutputFilePath); err != nil {
                     fmt.Println("Error executing SQL for", connID, ":", err)
                 }
+                // 更新 Last_QueryTime 0627
+                lastQueryTime = entry.QueryTime
             }
         }(connID, entries)
     }
