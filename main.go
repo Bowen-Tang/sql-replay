@@ -7,7 +7,7 @@ import (
 )
 
 // 版本信息
-var version = "0.3.1, build date 20240301"
+var version = "0.3.2, build date 20240627"
 
 func main() {
     var mode string
