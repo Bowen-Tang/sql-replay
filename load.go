@@ -3,11 +3,10 @@ package main
 import (
     "database/sql"
     "encoding/json"
-//    "flag"
     "fmt"
     "io/ioutil"
     _ "github.com/go-sql-driver/mysql"
-        "github.com/pingcap/tidb/pkg/parser" // 确保已经正确导入 TiDB 包
+    "github.com/pingcap/tidb/pkg/parser"
     "path/filepath"
     "strings"
 )
@@ -19,9 +18,8 @@ type SQLExecutionRecord3 struct {
     ExecutionTime int64  `json:"execution_time"`
     RowsReturned  int64  `json:"rows_returned"`
     ErrorInfo     string `json:"error_info,omitempty"`
-    FileName      string // 文件名
+    FileName      string // File name
 }
-
 
 func processFiles(out_dir, replay_name, tableName string, db *sql.DB) error {
     filePaths, err := filepath.Glob(filepath.Join(out_dir, replay_name+"*"))
@@ -66,7 +64,7 @@ func processFile(filePath, fileName, tableName string, db *sql.DB) error {
 
 func insertBatch(lines []string, fileName, tableName string, db *sql.DB) error {
     valueStrings := make([]string, 0, len(lines))
-    valueArgs := make([]interface{}, 0, len(lines)*9) // 9 是字段数量
+    valueArgs := make([]interface{}, 0, len(lines)*9) // 9 is the number of fields
 
     for _, line := range lines {
         if line == "" {
@@ -91,7 +89,7 @@ func insertBatch(lines []string, fileName, tableName string, db *sql.DB) error {
     }
 
     if len(valueStrings) == 0 {
-        return nil // 没有数据要插入
+        return nil // No data to insert
     }
 
     stmt := fmt.Sprintf("INSERT INTO %s (sql_text, sql_type, sql_digest, query_time, rows_sent, execution_time, rows_returned, error_info, file_name) VALUES %s",

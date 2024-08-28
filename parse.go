@@ -51,7 +51,7 @@ func ParseLogs(slowLogPath, slowOutputPath string) {
     var sqlBuffer strings.Builder
     var entryStarted bool = false
 
-    // 增加对 MySQL 5.6 时间格式的匹配
+    // Add support for MySQL 5.6 time format
     reTime56 := regexp.MustCompile(`Time: (\d{6})  ?(\d{1,2}:\d{2}:\d{2})`)
 
     reTime := regexp.MustCompile(`Time: ([\d-T:.Z]+)`)
@@ -63,14 +63,12 @@ func ParseLogs(slowLogPath, slowOutputPath string) {
 
         if strings.HasPrefix(line, "# Time:") {
             if entryStarted {
-                // Finish the current entry before starting a new one
                 finalizeEntry(&currentEntry, &sqlBuffer, outputFile)
             }
-            entryStarted = true // Mark the beginning of a new entry
+            entryStarted = true
 
             // MySQL 5.6 Time Format
             if match := reTime56.FindStringSubmatch(line); len(match) > 1 {
-                // 这里直接使用match[1]和match[2]，因为已经通过替换处理了小时小于10的情况
                 timeStr := fmt.Sprintf("%s %s", match[1], match[2])
                 parsedTime, err := time.Parse("060102 15:04:05", timeStr)
                 if err != nil {
