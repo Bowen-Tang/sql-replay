@@ -52,7 +52,7 @@ func main() {
     case "parse":
         ParseLogs(slowLogPath, slowOutputPath)
     case "replay":
-        ReplaySQL(dbConnStr, Speed, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, lang)
+        StartSQLReplay(dbConnStr, Speed, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, lang)
     case "load":
         LoadData(dbConnStr, outDir, replayOut, tableName)
     case "report":

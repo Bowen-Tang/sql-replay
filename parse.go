@@ -13,16 +13,6 @@ import (
     "github.com/pingcap/tidb/pkg/parser"
 )
 
-type LogEntry1 struct {
-    ConnectionID string  `json:"connection_id"`
-    QueryTime    int64   `json:"query_time"`
-    SQL          string  `json:"sql"`
-    RowsSent     int     `json:"rows_sent"`
-    Username     string  `json:"username"`
-    SQLType      string  `json:"sql_type"`
-    Ts           float64 `json:"ts"`
-}
-
 func ParseLogs(slowLogPath, slowOutputPath string) {
     if slowLogPath == "" || slowOutputPath == "" {
         fmt.Println("Usage: ./sql-replay -mode parse -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
@@ -47,7 +37,7 @@ func ParseLogs(slowLogPath, slowOutputPath string) {
     buf := make([]byte, 0, 512*1024*1024) // 512MB buffer
     scanner.Buffer(buf, bufio.MaxScanTokenSize)
 
-    var currentEntry LogEntry1
+    var currentEntry LogEntry
     var sqlBuffer strings.Builder
     var entryStarted bool = false
 
@@ -75,14 +65,14 @@ func ParseLogs(slowLogPath, slowOutputPath string) {
                     fmt.Println("Error parsing time:", err)
                     continue
                 }
-                currentEntry.Ts = float64(parsedTime.UnixNano()) / 1e9
+                currentEntry.Timestamp = float64(parsedTime.UnixNano()) / 1e9
                 continue
             }
 
             // MySQL 5.7/8.0 Time Format
             if match := reTime.FindStringSubmatch(line); len(match) > 1 {
                 parsedTime, _ := time.Parse(time.RFC3339Nano, match[1])
-                currentEntry.Ts = float64(parsedTime.UnixNano()) / 1e9
+                currentEntry.Timestamp = float64(parsedTime.UnixNano()) / 1e9
                 continue
             }
             continue
@@ -118,7 +108,7 @@ func ParseLogs(slowLogPath, slowOutputPath string) {
     }
 }
 
-func processQueryTimeAndRowsSent(line string, entry *LogEntry1) {
+func processQueryTimeAndRowsSent(line string, entry *LogEntry) {
     reTime := regexp.MustCompile(`Query_time: (\d+\.\d+)`)
     matchTime := reTime.FindStringSubmatch(line)
     if len(matchTime) > 1 {
@@ -133,7 +123,7 @@ func processQueryTimeAndRowsSent(line string, entry *LogEntry1) {
     }
 }
 
-func finalizeEntry(entry *LogEntry1, sqlBuffer *strings.Builder, outputFile *os.File) {
+func finalizeEntry(entry *LogEntry, sqlBuffer *strings.Builder, outputFile *os.File) {
     entry.SQL = strings.TrimSpace(sqlBuffer.String())
     // 检查 SQL 是否为空，如果为空，则不处理这条记录
     if entry.SQL == "" {
@@ -148,6 +138,6 @@ func finalizeEntry(entry *LogEntry1, sqlBuffer *strings.Builder, outputFile *os.
     jsonEntry, _ := json.Marshal(entry)
     fmt.Fprintln(outputFile, string(jsonEntry))
     // Reset for next entry
-    *entry = LogEntry1{}
+    *entry = LogEntry{}
     sqlBuffer.Reset()
 }
