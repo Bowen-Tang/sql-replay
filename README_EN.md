@@ -137,7 +137,7 @@ SQL execution order recorded in the database
 # How to build
 
 1. Install golang 1.20 or above
-2. Download the project
+2. Download the repo
 ```
 git clone https://github.com/Bowen-Tang/sql-replay
 ```
