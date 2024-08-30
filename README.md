@@ -69,7 +69,7 @@ unzip v0.3.3.zip
 ## 2. 连接目标库回放
 
 ```
-mkdir out # 用户存储回放结果
+mkdir out # 用于存储回放结果
 # 回放所有用户、所有 SQL
 ./sql-replay -mode replay -db 'user:password@tcp(ip:port)/db' -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all -dbname all -lang en
 # 回放所有用户、select 语句
