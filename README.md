@@ -10,8 +10,8 @@
 
 ## 支持的源端数据库
 1. MySQL 5.6, 5.7, 8.0
-2. 华为云 MySQL RDS
-3. Auroa MySQL 5.7/8.0
+2. Auroa MySQL 5.7/8.0
+3. 云上 MySQL RDS
 
 支持的日志格式示例：
 ```
