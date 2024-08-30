@@ -118,14 +118,10 @@ CREATE TABLE `test`.`replay_info` (
 Replay Summary 中，记录了 SQL 总耗时对比、快的 SQL 条数、慢的 SQL 条数、错误的 SQL 条数
 
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6f027083-88ff-49a3-a6fc-f7bf952f9f6f)
-Sql Error Info 中，根据 sql_digest 以及 error_info（前 10 位）排序
-
-
-
 
 说明：
 1. 为方便展示，将文本内容使用 ... 进行了省略，但依旧可以通过双击单元格选择内容后复制完整内容；另外 sample_sql_text 支持预览
-
+2. Sql Error Info 中，根据 sql_digest 以及 error_info（前 10 位）排序
 
 
 # 倍速回放效果（1 倍（默认），10 倍，50 倍）
