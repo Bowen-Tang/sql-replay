@@ -1,4 +1,6 @@
-# Feature Introduction
+**[中文](https://github.com/Bowen-Tang/sql-replay/blob/main/README.md) | [English](https://github.com/Bowen-Tang/sql-replay/blob/main/README_EN.md)**
+
+# Introduction
 ![image](docs/diagrams/traffic_replay_flow.png)
 
 ## Scenarios
