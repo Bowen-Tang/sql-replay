@@ -10,6 +10,7 @@
 ## 支持的源端数据库
 1. MySQL 5.6, 5.7, 8.0
 2. 华为云 MySQL RDS
+3. Auroa MySQL 5.7/8.0
 
 支持的日志格式示例：
 ```
@@ -43,7 +44,7 @@ SELECT c FROM sbtest1 WHERE id=250438;
 ## parse 部分
 读取 MySQL 慢查询日志，去掉 MySQL 中自动生成的 set timestamp=xx/# Administor/-- 等无效 SQL，生成一个可以格式化的 json 文件，用于回放
 ## replay 部分
-1. 读取 sql-replay -mode parse/parse-tshark -mode parse2file 生成的格式化 json 文件，支持指定上游数据库用户、上游 SQL 类型（all、select）、指定数据库（仅支持抓包工具采集的日志）来进行回放
+1. 读取 parse 阶段（或抓包工具 tshark 经 parse-tshark -mode parse2file）生成的格式化 json 文件，可过滤上游数据库用户、上游 SQL 类型（all、select）、上游数据库名（仅支持抓包工具采集的日志）来进行回放
 2. 根据 connection id 并行，相同 connection id 的 SQL 串行
 3. 将回放结果输出成 json 文件（按照 connection id 区分）
 ## load 部分
@@ -55,8 +56,8 @@ SELECT c FROM sbtest1 WHERE id=250438;
 # 操作示例 
 ## 下载并解压 
 ```
-mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3/v0.3.zip
-unzip v0.3.1.zip
+mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3.3/v0.3.3.zip
+unzip v0.3.3.zip
 ```
  
 ## 1. 解析慢查询日志
@@ -70,11 +71,14 @@ unzip v0.3.1.zip
 ```
 mkdir out # 用户存储回放结果
 # 回放所有用户、所有 SQL
-./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all -dbname all
+./sql-replay -mode replay -db 'user:password@tcp(ip:port)/db' -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_all -username all -sqltype all -dbname all -lang en
 # 回放所有用户、select 语句
-./sql-replay -mode replay -db "user:password@tcp(ip:port)/db" -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select -dbname db1
+./sql-replay -mode replay -db 'user:password@tcp(ip:port)/db' -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select -dbname db1 -lang zh
 ```
-说明：out 为回放结果存储目录（可更换为其他目录，需手动创建），sb1_all/sb1_select 为回放任务名称;speed 为回放速度，当慢查询周期很长但语句很少时建议增大回放速度，当需要模拟更大压力时，建议增大回放速度
+说明：
+
+1. out 为回放结果存储目录**（可更换为其他目录，需手动创建）**，sb1_all/sb1_select 为回放任务名称;speed 为回放速度，当慢查询周期很长但语句很少时建议增大回放速度，当需要模拟更大压力时，建议增大回放速度
+2. 'user:password@tcp(ip:port)/db' 中的 db 指的是用于回放的目标库
 
 ## 3. 导入回放结果到数据库
 **连接目标库，创建表结构**
@@ -94,16 +98,16 @@ CREATE TABLE `test`.`replay_info` (
 **导入数据**
 ```
 # 导入回放任务 sb1_all 的回放数据 
-./sql-replay -mode load -db "user:password@tcp(ip:port)/db" -out-dir ./out -replay-name sb1_all -table replay_info 
+./sql-replay -mode load -db 'user:password@tcp(ip:port)/db' -out-dir ./out -replay-name sb1_all -table replay_info 
 # 导入回放任务 sb1_select 的回放数据 
-./sql-replay -mode load -db "user:password@tcp(ip:port)/db" -out-dir ./out -replay-name sb1_select -table replay_info 
+./sql-replay -mode load -db 'user:password@tcp(ip:port)/db' -out-dir ./out -replay-name sb1_select -table replay_info 
 ```
 说明：-out-dir 为回放结果存储目录，-replay-name 回放任务名称，table 为写入结果表
 
 ## 4. 生成报告
 
 ```
-./sql-replay -mode report -db <mysql_connection_string> -replay-name slow1 -port ':8081'
+./sql-replay -mode report -db 'user:password@tcp(ip:port)/db' -replay-name slow1 -port ':8081'
 ```
 说明：执行完可访问 IP:PORT 访问报告内容
 
