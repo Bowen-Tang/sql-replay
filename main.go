@@ -6,33 +6,34 @@ import (
     "os"
 )
 
-// 版本信息
+// Version information for the SQL Replay Tool
 var version = "0.3.2, build date 20240627"
+
+var showVersion bool
 
 func main() {
     var mode string
     flag.StringVar(&mode, "mode", "", "Mode of operation: parse, replay, load, report")
 
-    // 共用的标志
-    var slowLogPath, slowOutputPath, dbConnStr, replayOutputFilePath, filterUsername, filterSQLType,filterDBName, outDir, replayOut, tableName, Port string
+    // Define flags for various operation parameters
+    var slowLogPath, slowOutputPath, dbConnStr, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, outDir, replayOut, tableName, Port string
     var Speed float64
+    var lang string
 
-    // 增加版本
-    var showVersion bool
     flag.BoolVar(&showVersion, "version", false, "Show version info")
-
     flag.StringVar(&slowLogPath, "slow-in", "", "Path to slow query log file")
     flag.StringVar(&slowOutputPath, "slow-out", "", "Path to slow output JSON file")
     flag.StringVar(&dbConnStr, "db", "username:password@tcp(localhost:3306)/test", "Database connection string")
     flag.StringVar(&outDir, "out-dir", "", "Directory containing the JSON files")
-    flag.StringVar(&replayOut, "replay-name", "", "replayout filename of the JSON files")
+    flag.StringVar(&replayOut, "replay-name", "", "Replay output filename")
     flag.StringVar(&tableName, "table", "replay_info", "Name of the table to insert data into")
     flag.StringVar(&replayOutputFilePath, "replay-out", "", "Path to output json file")
-    flag.StringVar(&filterUsername, "username", "all", "Username to filter (default 'all',or username)")
-    flag.StringVar(&filterSQLType, "sqltype", "all", "SQL type to filter (default 'all',or select)")
-    flag.StringVar(&filterDBName, "dbname", "all", "SQL type to filter (default 'all',or dbname)")
-    flag.Float64Var(&Speed, "speed", 1.0, "Replay speed, default 1.0")
-    flag.StringVar(&Port, "port", ":8081", "Report Web port")
+    flag.StringVar(&filterUsername, "username", "all", "Username to filter (default 'all', or specific username)")
+    flag.StringVar(&filterSQLType, "sqltype", "all", "SQL type to filter (default 'all', or 'select')")
+    flag.StringVar(&filterDBName, "dbname", "all", "Database name to filter (default 'all', or specific dbname)")
+    flag.Float64Var(&Speed, "speed", 1.0, "Replay speed multiplier")
+    flag.StringVar(&Port, "port", ":8081", "Report web server port")
+    flag.StringVar(&lang, "lang", "en", "Language for output (e.g., 'en' for English, 'zh' for Chinese)")
 
     flag.Parse()
 
@@ -42,19 +43,16 @@ func main() {
     }
 
     if mode == "" {
-        fmt.Println("Usage: ./sql-replay -mode [parse|replay|load|report]")
-        fmt.Println("    1. parse mode: ./sql-replay -mode parse -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
-        fmt.Println("    2. replay mode: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname>")
-        fmt.Println("    3. load mode: ./sql-replay -mode load -db <DB_CONN_STRING> -out-dir <DIRECTORY> -replay-name <REPORT_OUT_FILE_NAME> -table <replay_info>")
-        fmt.Println("    4. report mode: ./sql-replay -mode report -db <mysql_connection_string> -replay-name <replay name> -port ':8081'")
+        printUsage()
         os.Exit(1)
     }
 
+    // Execute the appropriate function based on the selected mode
     switch mode {
     case "parse":
         ParseLogs(slowLogPath, slowOutputPath)
     case "replay":
-        ReplaySQL(dbConnStr, Speed, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName)
+        StartSQLReplay(dbConnStr, Speed, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, lang)
     case "load":
         LoadData(dbConnStr, outDir, replayOut, tableName)
     case "report":
@@ -63,4 +61,12 @@ func main() {
         fmt.Println("Invalid mode. Available modes: parse, replay, load, report")
         os.Exit(1)
     }
+}
+
+func printUsage() {
+    fmt.Println("Usage: ./sql-replay -mode [parse|replay|load|report]")
+    fmt.Println("    1. parse mode: ./sql-replay -mode parse -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
+    fmt.Println("    2. replay mode: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname> -lang <en|zh>")
+    fmt.Println("    3. load mode: ./sql-replay -mode load -db <DB_CONN_STRING> -out-dir <DIRECTORY> -replay-name <REPORT_OUT_FILE_NAME> -table <replay_info>")
+    fmt.Println("    4. report mode: ./sql-replay -mode report -db <mysql_connection_string> -replay-name <replay name> -port ':8081'")
 }

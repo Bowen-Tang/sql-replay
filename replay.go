@@ -1,198 +1,211 @@
 package main
 
 import (
-    "bufio"
-    "database/sql"
-    "encoding/json"
-    "fmt"
-    "os"
-    "sync"
-    "time"
-//    "flag"
-    _ "github.com/go-sql-driver/mysql"
+	"bufio"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"os"
+	"sync"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-type SQLExecutionRecord2 struct {
+type SQLExecutionRecord struct {
     SQL           string `json:"sql"`
     QueryTime     int64  `json:"query_time"`
     RowsSent      int    `json:"rows_sent"`
     ExecutionTime int64  `json:"execution_time"`
     RowsReturned  int64  `json:"rows_returned"`
     ErrorInfo     string `json:"error_info,omitempty"`
+    FileName      string // File name
 }
 
-type LogEntry2 struct {
-    ConnectionID string `json:"connection_id"`
-    QueryTime    int64  `json:"query_time"`
-    SQL          string `json:"sql"`
-    RowsSent     int    `json:"rows_sent"`
-    Username     string `json:"username"`  // 新增字段 username
-    SQLType      string `json:"sql_type"`  // 新增字段 sql_type
-    DBName       string `json:"dbname"`    // 新增字段 dbname
-    Ts           float64 `json:"ts"` // 新增字段，以秒为单位，包含6位精度
+type LogEntry struct {
+	ConnectionID string  `json:"connection_id"`
+	QueryTime    int64   `json:"query_time"`
+	SQL          string  `json:"sql"`
+	RowsSent     int     `json:"rows_sent"`
+	Username     string  `json:"username"`
+	SQLType      string  `json:"sql_type"`
+	DBName       string  `json:"dbname"`
+	Timestamp    float64 `json:"ts"`
 }
 
-// SQLTask 代表 SQL 执行任务
 type SQLTask struct {
-    Entry LogEntry2
-    DB    *sql.DB
+	Entry LogEntry
+	DB    *sql.DB
 }
 
-func ExecuteSQLAndRecord(task SQLTask, basereplayOutputFilePath string) error {
-    if task.DB == nil {
-        return fmt.Errorf("database connection is nil")
-    }
-    startTime := time.Now()
+var i18n *I18n
 
-    rows, err := task.DB.Query(task.Entry.SQL)
-    var rowsReturned int64
-    var errorInfo string
-
-    if err != nil {
-        errorInfo = err.Error()
-    } else {
-        for rows.Next() {
-            rowsReturned++
-        }
-        rows.Close()
-    }
-
-    executionTime := time.Since(startTime).Microseconds()
-
-    record := SQLExecutionRecord2{
-        SQL:           task.Entry.SQL,
-        QueryTime:     task.Entry.QueryTime,
-        RowsSent:      task.Entry.RowsSent,
-        ExecutionTime: executionTime,
-        RowsReturned:  rowsReturned,
-        ErrorInfo:     errorInfo,
-    }
-
-    jsonData, err := json.Marshal(record)
-    if err != nil {
-        return err
-    }
-
-    replayOutputFilePath := fmt.Sprintf("%s.%s", basereplayOutputFilePath, task.Entry.ConnectionID)
-    file, err := os.OpenFile(replayOutputFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-    if err != nil {
-        return err
-    }
-    defer file.Close()
-
-    _, err = file.Write(jsonData)
-    if err != nil {
-        return err
-    }
-    _, err = file.WriteString("\n")
-    return err
+func init() {
+	var err error
+	i18n, err = NewI18n("translations.json", "en")
+	if err != nil {
+		panic(err)
+	}
 }
 
-func ReplaySQL(dbConnStr string, Speed float64,slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName string) {
-    if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
-        fmt.Println("Usage: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname>")
-        return
-    }
-    // 检查 Speed 参数是否为正数
-    if Speed <= 0 {
-        fmt.Println("Invalid replay speed. The speed must be a positive number.")
-        return
-    }
+func ExecuteSQLAndRecord(task SQLTask, baseReplayOutputFilePath string) error {
+	if task.DB == nil {
+		return fmt.Errorf("database connection is nil")
+	}
+	startTime := time.Now()
 
-    fmt.Println("回放目标用户：", filterUsername," 回放目标数据库：",filterDBName," 回放 SQL 范围: ",filterSQLType," 回放速度: ",Speed)
+	rows, err := task.DB.Query(task.Entry.SQL)
+	var rowsReturned int64
+	var errorInfo string
 
-    ts0 := time.Now() // 程序开始时记录时间
-    fmt.Println("参数读取成功，开始解析数据:", ts0)
+	if err != nil {
+		errorInfo = err.Error()
+	} else {
+		for rows.Next() {
+			rowsReturned++
+		}
+		rows.Close()
+	}
 
-    inputFile, err := os.Open(slowOutputPath)
-    if err != nil {
-        fmt.Println("Error opening file:", err)
-        return
-    }
-    defer inputFile.Close()
+	executionTime := time.Since(startTime).Microseconds()
 
-    var wg sync.WaitGroup
-    scanner := bufio.NewScanner(inputFile)
-    buf := make([]byte, 0, 512*1024*1024) // 512MB的缓冲区
-    scanner.Buffer(buf, bufio.MaxScanTokenSize)
+	record := SQLExecutionRecord{
+		SQL:           task.Entry.SQL,
+		QueryTime:     task.Entry.QueryTime,
+		RowsSent:      task.Entry.RowsSent,
+		ExecutionTime: executionTime,
+		RowsReturned:  rowsReturned,
+		ErrorInfo:     errorInfo,
+	}
 
-    tasksMap := make(map[string][]LogEntry2)
-    var minTs float64 = 9999999999.999999  // 增加最小时间戳
+	jsonData, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
 
-    for scanner.Scan() {
-        var entry LogEntry2
-        if err := json.Unmarshal([]byte(scanner.Text()), &entry); err != nil {
-            fmt.Println("Error parsing log entry:", err)
-            continue
-        }
+	replayOutputFilePath := fmt.Sprintf("%s.%s", baseReplayOutputFilePath, task.Entry.ConnectionID)
+	file, err := os.OpenFile(replayOutputFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-        if filterUsername != "all" && entry.Username != filterUsername {
-            continue
-        }
+	_, err = file.Write(jsonData)
+	if err != nil {
+		return err
+	}
+	_, err = file.WriteString("\n")
+	return err
+}
 
-        if filterSQLType != "all" && entry.SQLType != filterSQLType {
-            continue
-        }
-// 新增 dbname
-        if filterDBName != "all" && entry.DBName != filterDBName {
-            continue
-        }
-        tasksMap[entry.ConnectionID] = append(tasksMap[entry.ConnectionID], entry)
+func ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName string) (map[string][]LogEntry, float64, error) {
+	inputFile, err := os.Open(slowOutputPath)
+	if err != nil {
+		return nil, 0, fmt.Errorf("file open error: %w", err)
+	}
+	defer inputFile.Close()
 
-// 获取最小时间戳
-        if entry.Ts < minTs {
-            minTs = entry.Ts
-        }
-    }
-//    fmt.Printf("最小ts: %f\n", minTs)
-    ts1 := time.Now() // map 构建完成时间
-    fmt.Println("完成数据解析: ", ts1)
-    fmt.Printf("数据解析耗时: %v\n", ts1.Sub(ts0)) // 打印 ts1-ts0 时间
-    fmt.Println("开始 SQL 回放")
+	scanner := bufio.NewScanner(inputFile)
+	buf := make([]byte, 0, 512*1024*1024) // 512MB buffer
+	scanner.Buffer(buf, bufio.MaxScanTokenSize)
 
-    // 为每个 ConnectionID 创建 goroutine
-    for connID, entries := range tasksMap {
-        wg.Add(1)
-        go func(connID string, entries []LogEntry2) {
-            defer wg.Done()
+	tasksMap := make(map[string][]LogEntry)
+	var minTimestamp float64 = 9999999999.999999
 
-            db, err := sql.Open("mysql", dbConnStr)
-            if err != nil {
-                fmt.Println("Error opening database for", connID, ":", err)
-                return
-            }
-            defer db.Close()
+	for scanner.Scan() {
+		var entry LogEntry
+		if err := json.Unmarshal([]byte(scanner.Text()), &entry); err != nil {
+			fmt.Println("Error parsing log entry:", err)
+			continue
+		}
 
-            // 初始化 prevTs 和 Last_QueryTime 0627
-            var prevTs float64 = entries[0].Ts - (entries[0].Ts - minTs)
-            var lastQueryTime int64 = 0
-//            fmt.Printf("第一个 ts: %f\n", prevTs)
+		if filterUsername != "all" && entry.Username != filterUsername {
+			continue
+		}
 
-            for _, entry := range entries {
-                // 计算时间间隔并等待
-                // interval := (entry.Ts - prevTs) / Speed
-                // 计算时间间隔并等待，减去上一个 QueryTime 0627
-                interval := (entry.Ts - prevTs - float64(lastQueryTime)/1e6) / Speed
-//                fmt.Printf("间隔: %f\n", interval)
-                if interval > 0 {
-                    sleepDuration := time.Duration(interval * float64(time.Second))
-                    time.Sleep(sleepDuration)
-                }
-                prevTs = entry.Ts // 更新前一个时间戳
+		if filterSQLType != "all" && entry.SQLType != filterSQLType {
+			continue
+		}
 
-                // 执行 SQL
-                task := SQLTask{Entry: entry, DB: db}
-                if err := ExecuteSQLAndRecord(task, replayOutputFilePath); err != nil {
-                    fmt.Println("Error executing SQL for", connID, ":", err)
-                }
-                // 更新 Last_QueryTime 0627
-                lastQueryTime = entry.QueryTime
-            }
-        }(connID, entries)
-    }
+		if filterDBName != "all" && entry.DBName != filterDBName {
+			continue
+		}
+		tasksMap[entry.ConnectionID] = append(tasksMap[entry.ConnectionID], entry)
 
-    wg.Wait()
-    ts2 := time.Now() // 回放完成时间
-    fmt.Println("SQL 回放完成:", ts2)
-    fmt.Printf("SQL 回放时间: %v\n", ts2.Sub(ts1)) // 打印 ts2-ts1 时间
+		if entry.Timestamp < minTimestamp {
+			minTimestamp = entry.Timestamp
+		}
+	}
+
+	return tasksMap, minTimestamp, nil
+}
+
+func ReplaySQLForConnection(connID string, entries []LogEntry, dbConnStr string, replayOutputFilePath string, minTimestamp float64, speed float64, lang string) {
+	db, err := sql.Open("mysql", dbConnStr)
+	if err != nil {
+		fmt.Printf(i18n.T(lang, "db_open_error")+"\n", connID, err)
+		return
+	}
+	defer db.Close()
+
+	var prevTimestamp float64 = entries[0].Timestamp - (entries[0].Timestamp - minTimestamp)
+	var lastQueryTime int64 = 0
+
+	for _, entry := range entries {
+		interval := (entry.Timestamp - prevTimestamp - float64(lastQueryTime)/1e6) / speed
+		if interval > 0 {
+			sleepDuration := time.Duration(interval * float64(time.Second))
+			time.Sleep(sleepDuration)
+		}
+		prevTimestamp = entry.Timestamp
+
+		task := SQLTask{Entry: entry, DB: db}
+		if err := ExecuteSQLAndRecord(task, replayOutputFilePath); err != nil {
+			fmt.Printf(i18n.T(lang, "sql_exec_error")+"\n", connID, err)
+		}
+		lastQueryTime = entry.QueryTime
+	}
+}
+
+func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, lang string) {
+	if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
+		fmt.Println(i18n.T(lang, "usage"))
+		return
+	}
+
+	if speed <= 0 {
+		fmt.Println(i18n.T(lang, "invalid_speed"))
+		return
+	}
+
+	fmt.Printf(i18n.T(lang, "replay_info"), filterUsername, filterDBName, filterSQLType, speed)
+
+	ts0 := time.Now()
+	fmt.Println(i18n.T(lang, "parsing_start"), ts0)
+
+	tasksMap, minTimestamp, err := ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName)
+	if err != nil {
+		fmt.Println(i18n.T(lang, "file_open_error"), err)
+		return
+	}
+
+	ts1 := time.Now()
+	fmt.Println(i18n.T(lang, "parsing_complete"), ts1)
+	fmt.Printf("%s %v\n", i18n.T(lang, "parsing_time"), ts1.Sub(ts0))
+	fmt.Println(i18n.T(lang, "replay_start"))
+
+	var wg sync.WaitGroup
+
+	for connID, entries := range tasksMap {
+		wg.Add(1)
+		go func(connID string, entries []LogEntry) {
+			defer wg.Done()
+			ReplaySQLForConnection(connID, entries, dbConnStr, replayOutputFilePath, minTimestamp, speed, lang)
+		}(connID, entries)
+	}
+
+	wg.Wait()
+	ts2 := time.Now()
+	fmt.Println(i18n.T(lang, "replay_complete"), ts2)
+	fmt.Printf("%s %v\n", i18n.T(lang, "replay_time"), ts2.Sub(ts1))
 }
