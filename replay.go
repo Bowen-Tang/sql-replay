@@ -42,7 +42,7 @@ var i18n *I18n
 
 func init() {
 	var err error
-	i18n, err = NewI18n("translations.json", "en")
+	i18n, err = NewI18n("en")
 	if err != nil {
 		panic(err)
 	}
@@ -178,7 +178,7 @@ func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutpu
 		return
 	}
 
-	fmt.Printf(i18n.T(lang, "replay_info"), filterUsername, filterDBName, filterSQLType, speed)
+	fmt.Printf(i18n.T(lang, "replay_info")+"\n", filterUsername, filterDBName, filterSQLType, speed)
 
 	ts0 := time.Now()
 	fmt.Println(i18n.T(lang, "parsing_start"), ts0)
