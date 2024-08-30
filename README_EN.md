@@ -113,13 +113,12 @@ Note: After execution, you can access the report content at IP:PORT.
 # Report Example
 
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/c72dcbea-ad39-4ade-ad09-24dd163b913a)
-The Replay Summary records the total SQL execution time comparison, number of faster SQL statements, number of slower SQL statements, and number of erroneous SQL statements.
+The Replay Summary records the "total SQL execution time comparison", "number of faster SQL statements", "number of slower SQL statements", and "number of erroneous SQL statements".
 
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/6f027083-88ff-49a3-a6fc-f7bf952f9f6f)
-The SQL Error Info is sorted by sql_digest and error_info (first 10 characters).
-
 Note:
 1. For ease of display, text content has been abbreviated with ..., but you can still copy the full content by double-clicking and selecting the cell content; additionally, sample_sql_text supports preview.
+2. The SQL Error Info is sorted by sql_digest and error_info (first 10 characters).
 
 # Multiple Speed Replay Effects (1x (default), 10x, 50x)
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/8ebbee92-586d-4090-97d6-9e2c87c640bc)
@@ -133,7 +132,7 @@ SQL execution order recorded in the database
 
 ![image](https://github.com/Bowen-Tang/sql-replay/assets/52245161/7d9d7f84-80a1-44d6-b3d5-8f27b933ffcb)
 
-# Compilation and Installation Method
+# How to build
 
 1. Install golang 1.20 or above
 2. Download the project
