@@ -7,28 +7,98 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pingcap/tidb/pkg/parser"
 )
 
-const batchSize = 1000
+const (
+	batchSize = 1000
+	workers   = 4
+)
 
 func LoadData(dbConnStr, outDir, replayOut, tableName string) {
 	if !validateInputs(dbConnStr, outDir, replayOut, tableName) {
 		return
 	}
 
+        fmt.Printf("load batchsize: %d, load workers: %d\n",batchSize,workers)
+
 	db, err := sql.Open("mysql", dbConnStr)
 	if err != nil {
-		fmt.Println("Error connecting to database:", err)
+		fmt.Println("connect to db failed:", err)
 		return
 	}
 	defer db.Close()
 
-	if err := processFiles(outDir, replayOut, tableName, db); err != nil {
-		fmt.Println("Error processing files:", err)
+        ts_create_table := time.Now()
+        fmt.Printf("[%s] Begin create table - REPLAY_INFO\n", ts_create_table.Format("2006-01-02 15:04:05.000"))
+	if err := createTableIfNotExists(db, tableName); err != nil {
+		fmt.Println("create table failed:", err)
+		return
 	}
+
+	if err := processFilesParallel(outDir, replayOut, tableName, db); err != nil {
+		fmt.Println("process files failed:", err)
+	}
+}
+
+func createTableIfNotExists(db *sql.DB, tableName string) error {
+	createTableSQL := fmt.Sprintf(`
+	CREATE TABLE IF NOT EXISTS %s (
+		sql_text longtext DEFAULT NULL,
+		sql_type varchar(16) DEFAULT NULL,
+		sql_digest varchar(64) DEFAULT NULL,
+		query_time bigint(20) DEFAULT NULL,
+		rows_sent bigint(20) DEFAULT NULL,
+		execution_time bigint(20) DEFAULT NULL,
+		rows_returned bigint(20) DEFAULT NULL,
+		error_info text DEFAULT NULL,
+		file_name varchar(64) DEFAULT NULL
+	)`, tableName)
+
+	_, err := db.Exec(createTableSQL)
+	return err
+}
+
+func processFilesParallel(outDir, replayName, tableName string, db *sql.DB) error {
+	filePaths, err := filepath.Glob(filepath.Join(outDir, replayName+"*"))
+	if err != nil {
+		return fmt.Errorf("find files failed: %w", err)
+	}
+
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(filePaths))
+	semaphore := make(chan struct{}, workers)
+
+	for _, filePath := range filePaths {
+		wg.Add(1)
+		go func(fp string) {
+			defer wg.Done()
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }()
+
+			fileName := filepath.Base(fp)
+			if err := processFile(fp, fileName, tableName, db); err != nil {
+				errChan <- fmt.Errorf("process file %s failed: %w", fileName, err)
+			} else {
+				logCompletion(fileName)
+			}
+		}(filePath)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	for err := range errChan {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func validateInputs(dbConnStr, outDir, replayOut, tableName string) bool {
@@ -49,6 +119,8 @@ func processFiles(outDir, replayName, tableName string, db *sql.DB) error {
 		fileName := filepath.Base(filePath)
 		if err := processFile(filePath, fileName, tableName, db); err != nil {
 			return fmt.Errorf("error processing file %s: %w", fileName, err)
+		} else {
+			logCompletion(fileName)
 		}
 	}
 
@@ -130,4 +202,9 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func logCompletion(fileName string) {
+	currentTime := time.Now().Format("2006-01-02 15:04:05.000")
+	fmt.Printf("[%s] Completed processing file: %s\n", currentTime, fileName)
 }

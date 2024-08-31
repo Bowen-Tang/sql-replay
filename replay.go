@@ -181,7 +181,7 @@ func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutpu
 	fmt.Printf(i18n.T(lang, "replay_info")+"\n", filterUsername, filterDBName, filterSQLType, speed)
 
 	ts0 := time.Now()
-	fmt.Println(i18n.T(lang, "parsing_start"), ts0)
+	fmt.Printf("[%s] %s\n",ts0.Format("2006-01-02 15:04:05.000"),i18n.T(lang, "parsing_start"))
 
 	tasksMap, minTimestamp, err := ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName)
 	if err != nil {
@@ -190,8 +190,8 @@ func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutpu
 	}
 
 	ts1 := time.Now()
-	fmt.Println(i18n.T(lang, "parsing_complete"), ts1)
-	fmt.Printf("%s %v\n", i18n.T(lang, "parsing_time"), ts1.Sub(ts0))
+	fmt.Printf("[%s] %s, ",ts1.Format("2006-01-02 15:04:05.000"),i18n.T(lang, "parsing_complete"))
+	fmt.Printf("%s %v, ", i18n.T(lang, "parsing_time"), ts1.Sub(ts0))
 	fmt.Println(i18n.T(lang, "replay_start"))
 
 	var wg sync.WaitGroup
@@ -206,6 +206,6 @@ func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutpu
 
 	wg.Wait()
 	ts2 := time.Now()
-	fmt.Println(i18n.T(lang, "replay_complete"), ts2)
+	fmt.Printf("[%s] %s, ",ts2.Format("2006-01-02 15:04:05.000"),i18n.T(lang, "replay_complete"))
 	fmt.Printf("%s %v\n", i18n.T(lang, "replay_time"), ts2.Sub(ts1))
 }
