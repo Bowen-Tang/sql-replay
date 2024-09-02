@@ -82,20 +82,6 @@ mkdir out # 用于存储回放结果
 2. 'user:password@tcp(ip:port)/db' 中的 db 指的是用于回放的目标库
 
 ## 3. 导入回放结果到数据库
-**连接目标库，创建表结构**
-```
-CREATE TABLE `test`.`replay_info` (
-`sql_text` longtext DEFAULT NULL,
-`sql_type` varchar(16) DEFAULT NULL,
-`sql_digest` varchar(64) DEFAULT NULL,
-`query_time` bigint(20) DEFAULT NULL,
-`rows_sent` bigint(20) DEFAULT NULL,
-`execution_time` bigint(20) DEFAULT NULL,
-`rows_returned` bigint(20) DEFAULT NULL,
-`error_info` text DEFAULT NULL,
-`file_name` varchar(64) DEFAULT NULL
-);
-```
 **导入数据**
 ```
 # 导入回放任务 sb1_all 的回放数据 
