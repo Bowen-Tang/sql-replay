@@ -83,20 +83,6 @@ Note:
 2. In 'user:password@tcp(ip:port)/db', 'db' refers to the target database for replay.
 
 ## 3. Import Replay Results to Database
-**Connect to target database, create table structure**
-```
-CREATE TABLE `test`.`replay_info` (
-`sql_text` longtext DEFAULT NULL,
-`sql_type` varchar(16) DEFAULT NULL,
-`sql_digest` varchar(64) DEFAULT NULL,
-`query_time` bigint(20) DEFAULT NULL,
-`rows_sent` bigint(20) DEFAULT NULL,
-`execution_time` bigint(20) DEFAULT NULL,
-`rows_returned` bigint(20) DEFAULT NULL,
-`error_info` text DEFAULT NULL,
-`file_name` varchar(64) DEFAULT NULL
-);
-```
 **Import data**
 ```
 # Import Replay Results For task sb1_all 
