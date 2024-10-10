@@ -61,8 +61,8 @@ Analyzes replay results and generates a replay report (including response time c
 
 ## Download and Extract
 ```
-mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3.3/v0.3.3.zip
-unzip v0.3.3.zip
+mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3.4/v0.3.4.zip
+unzip v0.3.4.zip
 ```
 
 ## 1. Parse Slow Query Log
