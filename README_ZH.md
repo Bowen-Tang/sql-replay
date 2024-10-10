@@ -12,8 +12,9 @@
 1. MySQL 5.6, 5.7, 8.0
 2. Auroa MySQL 5.7/8.0
 3. 云上 MySQL RDS
+4. TiDB
 
-支持的日志格式示例：
+支持的 MySQL 日志格式示例：
 ```
 # Time: 2024-01-19T16:29:48.141142Z
 # User@Host: t1[t1] @  [10.2.103.21]  Id:   797
@@ -63,9 +64,15 @@ unzip v0.3.3.zip
  
 ## 1. 解析慢查询日志
 ```
-./sql-replay -mode parse -slow-in /opt/slow.log -slow-out /opt/slow.format
+# MySQL Slow Log
+./sql-replay -mode parsemysqlslow -slow-in /opt/slow.log -slow-out /opt/slow.format
+# TiDB Slow Log
+./sql-replay -mode parsetidbslow -slow-in /opt/slow.log -slow-out /opt/slow.format
 ```
-说明：/opt/slow.log 为慢查询日志路径，slow.format 则为输出的格式化文件
+
+说明：
+1. /opt/slow.log 为慢查询日志路径，slow.format 则为输出的格式化文件
+2. TiDB 慢日志按文件进行了切分，当需要回放多个慢日志文件时，建议将输出结果按照顺序合并为一个回放文件
 
 ## 2. 连接目标库回放
 
