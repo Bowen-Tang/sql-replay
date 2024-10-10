@@ -7,13 +7,13 @@ import (
 )
 
 // Version information for the SQL Replay Tool
-var version = "0.3.2, build date 20240627"
+var version = "0.3.3, build date 20241010"
 
 var showVersion bool
 
 func main() {
     var mode string
-    flag.StringVar(&mode, "mode", "", "Mode of operation: parse, replay, load, report")
+    flag.StringVar(&mode, "mode", "", "Mode of operation: parsemysqlslow ,parsetidbslow , replay, load, report")
 
     // Define flags for various operation parameters
     var slowLogPath, slowOutputPath, dbConnStr, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, outDir, replayOut, tableName, Port string
@@ -49,8 +49,10 @@ func main() {
 
     // Execute the appropriate function based on the selected mode
     switch mode {
-    case "parse":
+    case "parsemysqlslow":
         ParseLogs(slowLogPath, slowOutputPath)
+    case "parsetidbslow":
+        ParseTiDBLogs(slowLogPath, slowOutputPath)
     case "replay":
         StartSQLReplay(dbConnStr, Speed, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, lang)
     case "load":
@@ -65,8 +67,9 @@ func main() {
 
 func printUsage() {
     fmt.Println("Usage: ./sql-replay -mode [parse|replay|load|report]")
-    fmt.Println("    1. parse mode: ./sql-replay -mode parse -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
-    fmt.Println("    2. replay mode: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname> -lang <en|zh>")
-    fmt.Println("    3. load mode: ./sql-replay -mode load -db <DB_CONN_STRING> -out-dir <DIRECTORY> -replay-name <REPORT_OUT_FILE_NAME> -table <replay_info>")
-    fmt.Println("    4. report mode: ./sql-replay -mode report -db <mysql_connection_string> -replay-name <replay name> -port ':8081'")
+    fmt.Println("    1. parse mysql slow log: ./sql-replay -mode parsemysqlslow -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
+    fmt.Println("    2. parse tidb slow log: ./sql-replay -mode parsetidbslow -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
+    fmt.Println("    3. replay mode: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname> -lang <en|zh>")
+    fmt.Println("    4. load mode: ./sql-replay -mode load -db <DB_CONN_STRING> -out-dir <DIRECTORY> -replay-name <REPORT_OUT_FILE_NAME> -table <replay_info>")
+    fmt.Println("    5. report mode: ./sql-replay -mode report -db <mysql_connection_string> -replay-name <replay name> -port ':8081'")
 }
