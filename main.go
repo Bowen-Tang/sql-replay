@@ -7,7 +7,7 @@ import (
 )
 
 // Version information for the SQL Replay Tool
-var version = "0.3.3, build date 20241010"
+var version = "0.3.4, build date 20241010"
 
 var showVersion bool
 
