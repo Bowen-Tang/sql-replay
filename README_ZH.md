@@ -58,8 +58,8 @@ SELECT c FROM sbtest1 WHERE id=250438;
 # 操作示例 
 ## 下载并解压 
 ```
-mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3.3/v0.3.3.zip
-unzip v0.3.3.zip
+mkdir replay && cd replay && wget https://github.com/Bowen-Tang/sql-replay/releases/download/v0.3.4/v0.3.4.zip
+unzip v0.3.4.zip
 ```
  
 ## 1. 解析慢查询日志
