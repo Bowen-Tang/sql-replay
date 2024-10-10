@@ -11,8 +11,9 @@
 1. MySQL 5.6, 5.7, 8.0
 2. Aurora MySQL 5.7/8.0
 3. Maybe Other Cloud RDS ...
+4. TiDB
 
-Examples of supported log formats:
+Examples of MySQL Slow log formats:
 ```
 # Time: 2024-01-19T16:29:48.141142Z
 # User@Host: t1[t1] @  [10.2.103.21]  Id:   797
@@ -66,9 +67,14 @@ unzip v0.3.3.zip
 
 ## 1. Parse Slow Query Log
 ```
-./sql-replay -mode parse -slow-in /opt/slow.log -slow-out /opt/slow.format
+# Parse MySQL Slow Log
+./sql-replay -mode parsemysqlslow -slow-in /opt/slow.log -slow-out /opt/slow.format
+# Parse TiDB Slow Log
+./sql-replay -mode parsetidbslow -slow-in /opt/slow.log -slow-out /opt/slow.format
 ```
-Note: /opt/slow.log is the path to the slow query log, slow.format is the output formatted file.
+Note: 
+1. /opt/slow.log is the path to the slow query log, slow.format is the output formatted file.
+2. TiDB slow logs are split by file. When replaying multiple slow log files, it is recommended to merge the output results into a single replay file in order.
 
 ## 2. Connect to Target Database for Replay
 ```
