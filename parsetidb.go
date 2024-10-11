@@ -116,6 +116,7 @@ func ParseTiDBLogs(slowLogPath, slowOutputPath string) {
                 // 处理 SQL 语句
                 sqlStatement += strings.TrimSpace(line)
                 normalizedSQL := parser.Normalize(sqlStatement)
+                entry.Digest = parser.DigestNormalized(normalizedSQL).String()
                 words := strings.Fields(normalizedSQL)
                 entry.SQLType = "other"
                 if len(words) > 0 {

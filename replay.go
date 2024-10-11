@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 	"time"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -31,6 +32,7 @@ type LogEntry struct {
 	SQLType      string  `json:"sql_type"`
 	DBName       string  `json:"dbname"`
 	Timestamp    float64 `json:"ts"`
+	Digest       string  `json:"digest"`
 }
 
 type SQLTask struct {
@@ -98,12 +100,20 @@ func ExecuteSQLAndRecord(task SQLTask, baseReplayOutputFilePath string) error {
 	return err
 }
 
-func ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName string) (map[string][]LogEntry, float64, error) {
+func ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName string, ignoreDigestList []string) (map[string][]LogEntry, float64, error) {
 	inputFile, err := os.Open(slowOutputPath)
 	if err != nil {
 		return nil, 0, fmt.Errorf("file open error: %w", err)
 	}
 	defer inputFile.Close()
+
+        logFilePath := "ignored_digests.log"
+        logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+        if err != nil {
+            fmt.Printf("Failed to open log file: %v\n", err)
+        }
+
+        defer logFile.Close()
 
 	scanner := bufio.NewScanner(inputFile)
 	buf := make([]byte, 0, 512*1024*1024) // 512MB buffer
@@ -130,6 +140,10 @@ func ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName
 		if filterDBName != "all" && entry.DBName != filterDBName {
 			continue
 		}
+		if contains(ignoreDigestList, entry.Digest) { // ignore input digests
+			fmt.Fprintf(logFile, "%s, %s\n", entry.Digest,entry.SQL)
+			continue
+		}
 		tasksMap[entry.ConnectionID] = append(tasksMap[entry.ConnectionID], entry)
 
 		if entry.Timestamp < minTimestamp {
@@ -138,6 +152,15 @@ func ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName
 	}
 
 	return tasksMap, minTimestamp, nil
+}
+
+func contains(slice []string, item string) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
 }
 
 func ReplaySQLForConnection(connID string, entries []LogEntry, dbConnStr string, replayOutputFilePath string, minTimestamp float64, speed float64, lang string) {
@@ -167,7 +190,7 @@ func ReplaySQLForConnection(connID string, entries []LogEntry, dbConnStr string,
 	}
 }
 
-func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, lang string) {
+func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutputFilePath, filterUsername, filterSQLType, filterDBName, ignoreDigests string, lang string) {
 	if dbConnStr == "" || slowOutputPath == "" || replayOutputFilePath == "" {
 		fmt.Println(i18n.T(lang, "usage"))
 		return
@@ -177,13 +200,15 @@ func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutpu
 		fmt.Println(i18n.T(lang, "invalid_speed"))
 		return
 	}
-
+	ignoreDigestList := strings.Split(ignoreDigests, ",")
 	fmt.Printf(i18n.T(lang, "replay_info")+"\n", filterUsername, filterDBName, filterSQLType, speed)
+	fmt.Println("Ignored Digests: "+ignoreDigests)
+	fmt.Println("Ignored Digests And SQL Info: ignored_digests.log")
 
 	ts0 := time.Now()
 	fmt.Printf("[%s] %s\n",ts0.Format("2006-01-02 15:04:05.000"),i18n.T(lang, "parsing_start"))
 
-	tasksMap, minTimestamp, err := ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName)
+	tasksMap, minTimestamp, err := ParseLogEntries(slowOutputPath, filterUsername, filterSQLType, filterDBName, ignoreDigestList)
 	if err != nil {
 		fmt.Println(i18n.T(lang, "file_open_error"), err)
 		return

@@ -130,6 +130,7 @@ func finalizeEntry(entry *LogEntry, sqlBuffer *strings.Builder, outputFile *os.F
         return
     }
     normalizedSQL := parser.Normalize(entry.SQL)
+    entry.Digest = parser.DigestNormalized(normalizedSQL).String()
     words := strings.Fields(normalizedSQL)
     entry.SQLType = "other"
     if len(words) > 0 {
