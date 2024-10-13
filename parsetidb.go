@@ -25,9 +25,11 @@ func ParseTiDBLogs(slowLogPath, slowOutputPath string) {
     }
     defer file.Close()
 
-
     var entries []LogEntry
+    bufferSize := 1024 * 1024 * 10 // 1MB
     scanner := bufio.NewScanner(file)
+    buf := make([]byte, bufferSize)
+    scanner.Buffer(buf, bufferSize)
 
     var entry LogEntry
     var isInternal bool
