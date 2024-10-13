@@ -87,6 +87,7 @@ mkdir out # 用于存储回放结果
 
 1. out 为回放结果存储目录**（可更换为其他目录，需手动创建）**，sb1_all/sb1_select 为回放任务名称;speed 为回放速度，当慢查询周期很长但语句很少时建议增大回放速度，当需要模拟更大压力时，建议增大回放速度
 2. 'user:password@tcp(ip:port)/db' 中的 db 指的是用于回放的目标库
+3. 高级功能：-ignoredigests digest1,digest2,digest3... 回放时可以忽略指定的 SQL
 
 ## 3. 导入回放结果到数据库
 **导入数据**

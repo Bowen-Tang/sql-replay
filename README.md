@@ -84,9 +84,11 @@ mkdir out # To store Replay Results
 # Replay All users and only Select SQL
 ./sql-replay -mode replay -db 'user:password@tcp(ip:port)/db' -speed 1.0 -slow-out /opt/slow.format -replay-out ./out/sb1_select -username all -sqltype select -dbname db1 -lang zh
 ```
+
 Note:
 1. 'out' is the directory for storing replay results **(can be changed to other directories, needs to be manually created)**. sb1_all/sb1_select is the replay task name; 'speed' is the replay speed. When the slow query cycle is long but there are few statements, it's recommended to increase the replay speed. When simulating higher pressure, it's also recommended to increase the replay speed.
 2. In 'user:password@tcp(ip:port)/db', 'db' refers to the target database for replay.
+3. Advanced Future: -ignoredigests digest1,digest2,digest3...
 
 ## 3. Import Replay Results to Database
 **Import data**
