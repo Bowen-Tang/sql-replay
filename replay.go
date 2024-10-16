@@ -21,6 +21,7 @@ type SQLExecutionRecord struct {
     RowsReturned  int64  `json:"rows_returned"`
     ErrorInfo     string `json:"error_info,omitempty"`
     FileName      string // File name
+    DBName        string `json:"dbname"`
 }
 
 type LogEntry struct {
@@ -75,6 +76,7 @@ func ExecuteSQLAndRecord(task SQLTask, baseReplayOutputFilePath string) error {
 		SQL:           task.Entry.SQL,
 		QueryTime:     task.Entry.QueryTime,
 		RowsSent:      task.Entry.RowsSent,
+                DBName:        task.Entry.DBName,
 		ExecutionTime: executionTime,
 		RowsReturned:  rowsReturned,
 		ErrorInfo:     errorInfo,

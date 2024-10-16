@@ -56,7 +56,8 @@ func createTableIfNotExists(db *sql.DB, tableName string) error {
 		execution_time bigint(20) DEFAULT NULL,
 		rows_returned bigint(20) DEFAULT NULL,
 		error_info text DEFAULT NULL,
-		file_name varchar(64) DEFAULT NULL
+		file_name varchar(64) NOT NULL,
+		db_name varchar(64) DEFAULT NULL
 	)`, tableName)
 
 	_, err := db.Exec(createTableSQL)
@@ -180,11 +181,11 @@ func buildInsertQuery(records []SQLExecutionRecord, fileName, tableName string) 
 		digest := parser.DigestNormalized(normalizedSQL).String()
 		sqlType := getSQLType(normalizedSQL)
 
-		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?)")
-		valueArgs = append(valueArgs, record.SQL, sqlType, digest, record.QueryTime, record.RowsSent, record.ExecutionTime, record.RowsReturned, record.ErrorInfo, fileName)
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueArgs = append(valueArgs, record.SQL, sqlType, digest, record.QueryTime, record.RowsSent, record.ExecutionTime, record.RowsReturned, record.ErrorInfo, fileName, record.DBName)
 	}
 
-	query := fmt.Sprintf("INSERT INTO %s (sql_text, sql_type, sql_digest, query_time, rows_sent, execution_time, rows_returned, error_info, file_name) VALUES %s",
+	query := fmt.Sprintf("INSERT INTO %s (sql_text, sql_type, sql_digest, query_time, rows_sent, execution_time, rows_returned, error_info, file_name, db_name) VALUES %s",
 		tableName, strings.Join(valueStrings, ","))
 	return query, valueArgs
 }

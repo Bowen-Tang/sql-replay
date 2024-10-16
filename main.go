@@ -7,7 +7,7 @@ import (
 )
 
 // Version information for the SQL Replay Tool
-var version = "0.3.4, build date 20241011"
+var version = "0.3.4, build date 20241014"
 
 var showVersion bool
 
@@ -70,7 +70,7 @@ func printUsage() {
     fmt.Println("Usage: ./sql-replay -mode [parse|replay|load|report]")
     fmt.Println("    1. parse mysql slow log: ./sql-replay -mode parsemysqlslow -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
     fmt.Println("    2. parse tidb slow log: ./sql-replay -mode parsetidbslow -slow-in <path_to_slow_query_log> -slow-out <path_to_slow_output_file>")
-    fmt.Println("    3. replay mode: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname> -digests <digest1,digest2...> -lang <en|zh>")
+    fmt.Println("    3. replay mode: ./sql-replay -mode replay -db <mysql_connection_string> -speed 1.0 -slow-out <slow_output_file> -replay-out <replay_output_file> -username <all|username> -sqltype <all|select> -dbname <all|dbname> -ignoredigests <digest1,digest2...> -lang <en|zh>")
     fmt.Println("    4. load mode: ./sql-replay -mode load -db <DB_CONN_STRING> -out-dir <DIRECTORY> -replay-name <REPORT_OUT_FILE_NAME> -table <replay_info>")
     fmt.Println("    5. report mode: ./sql-replay -mode report -db <mysql_connection_string> -replay-name <replay name> -port ':8081'")
 }
