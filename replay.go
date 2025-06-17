@@ -202,7 +202,10 @@ func StartSQLReplay(dbConnStr string, speed float64, slowOutputPath, replayOutpu
 		fmt.Println(i18n.T(lang, "invalid_speed"))
 		return
 	}
-	ignoreDigestList := strings.Split(ignoreDigests, ",")
+    var ignoreDigestList []string
+    if ignoreDigests != "" {
+        ignoreDigestList = strings.Split(ignoreDigests, ",")
+    }
 	fmt.Printf(i18n.T(lang, "replay_info")+"\n", filterUsername, filterDBName, filterSQLType, speed)
 	fmt.Println("Ignored Digests: "+ignoreDigests)
 	fmt.Println("Ignored Digests And SQL Info: ignored_digests.log")
