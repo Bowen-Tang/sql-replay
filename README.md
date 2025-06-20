@@ -12,6 +12,7 @@
 2. Aurora MySQL 5.7/8.0
 3. Maybe Other Cloud RDS ...
 4. TiDB
+5. MariaDB
 
 Examples of MySQL Slow log formats:
 ```
@@ -40,6 +41,17 @@ disk_tables: 0 Created_tmp_tables: 0 Start: 2023-11-06T00:06:35.589701 End: 2023
 use db;
 SET timestamp=1699200395;
 SELECT c FROM sbtest1 WHERE id=250438;
+```
+
+Examples of MariaDB Slow log formats:
+```
+# Time: 241003  9:01:42
+# User@Host: read1[read1] @ host123 [10.3.11.123]
+# Thread_id: 1469315676  Schema: joymeet  QC_hit: No
+# Query_time: 0.000835  Lock_time: 0.000009  Rows_sent: 1  Rows_examined: 478
+# Rows_affected: 0  Bytes_sent: 0
+SET timestamp=1727946102;
+select count(*) as aggregate from `stats_history`; 
 ```
 
 ## Parse Section
@@ -71,6 +83,8 @@ unzip v0.3.4.zip
 ./sql-replay -mode parsemysqlslow -slow-in /opt/slow.log -slow-out /opt/slow.format
 # Parse TiDB Slow Log
 ./sql-replay -mode parsetidbslow -slow-in /opt/slow.log -slow-out /opt/slow.format
+# Parse MariaDB Slow Log
+./sql-replay -mode parsemariadbslow -slow-in /opt/slow.log -slow-out /opt/slow.format
 ```
 Note: 
 1. /opt/slow.log is the path to the slow query log, slow.format is the output formatted file.

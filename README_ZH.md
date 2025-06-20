@@ -13,6 +13,7 @@
 2. Auroa MySQL 5.7/8.0
 3. 云上 MySQL RDS
 4. TiDB
+5. MariaDB
 
 支持的 MySQL 日志格式示例：
 ```
@@ -43,6 +44,17 @@ SET timestamp=1699200395;
 SELECT c FROM sbtest1 WHERE id=250438;
 ```
 
+支持的 MariaDB 慢日志格式：
+```
+# Time: 241003  9:01:42
+# User@Host: read1[read1] @ host123 [10.3.11.123]
+# Thread_id: 1469315676  Schema: joymeet  QC_hit: No
+# Query_time: 0.000835  Lock_time: 0.000009  Rows_sent: 1  Rows_examined: 478
+# Rows_affected: 0  Bytes_sent: 0
+SET timestamp=1727946102;
+select count(*) as aggregate from `stats_history`; 
+```
+
 ## parse 部分
 读取 MySQL 慢查询日志，去掉 MySQL 中自动生成的 set timestamp=xx/# Administor/-- 等无效 SQL，生成一个可以格式化的 json 文件，用于回放
 ## replay 部分
@@ -68,6 +80,8 @@ unzip v0.3.4.zip
 ./sql-replay -mode parsemysqlslow -slow-in /opt/slow.log -slow-out /opt/slow.format
 # TiDB Slow Log
 ./sql-replay -mode parsetidbslow -slow-in /opt/slow.log -slow-out /opt/slow.format
+# Parse MariaDB Slow Log
+./sql-replay -mode parsemariadbslow -slow-in /opt/slow.log -slow-out /opt/slow.format
 ```
 
 说明：
