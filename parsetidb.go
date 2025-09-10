@@ -35,7 +35,7 @@ func ParseTiDBLogs(slowLogPath, slowOutputPath string) {
     var isInternal bool
     var sqlStatement string
     var isPrepared string // 声明 isPrepared 变量
-    timeRegex := regexp.MustCompile(`# Time:\s+(\d+-\d+-\d+T\d+:\d+:\d+\.\d+\+\d+:\d+)`)
+    timeRegex := regexp.MustCompile(`# Time:\s+(\d+-\d+-\d+T\d+:\d+:\d+\.\d+[+-]\d+:\d+)`)
     userHostRegex := regexp.MustCompile(`# User@Host:\s+(\w+)`)
     connIDRegex := regexp.MustCompile(`# Conn_ID:\s+(\d+)`)
     queryTimeRegex := regexp.MustCompile(`# Query_time:\s+(\d+\.\d+)`)
