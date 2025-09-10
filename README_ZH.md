@@ -2,7 +2,7 @@
 # 功能介绍
 ![image](docs/diagrams/traffic_replay_flow.png)
 
-
+# [从 kafka 回放!!!](https://github.com/Bowen-Tang/sql-replay/blob/kafka/docs/replay_from_kafka.md)
 
 ## 适用场景
 1. 版本升级兼容性及性能评估

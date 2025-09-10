@@ -1,5 +1,7 @@
 **[中文](https://github.com/Bowen-Tang/sql-replay/blob/main/README_ZH.md) | [English](https://github.com/Bowen-Tang/sql-replay/blob/main/README.md)**
 
+# [Replay From Kafka!!!](https://github.com/Bowen-Tang/sql-replay/blob/kafka/docs/replay_from_kafka.md)
+
 # Introduction
 ![image](docs/diagrams/traffic_replay_flow.png)
 
